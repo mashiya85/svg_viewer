@@ -728,9 +728,14 @@ function searchForPVsMatchingPattern() {
 		console.log("Search and add PVs for pattern " + pattern);
 		var list = $("#pvNameSearchMatchingList");
 		list.empty();
+		$("#pvNameSearchMatchingError").empty();
 		$.getJSON( viewerVars.serverURL + "/../bpl/getMatchingPVs?limit=50&pv=" + pattern, function(matchingPVs){
-			matchingPVs.forEach(function(matchingPV) { list.append('<li class="list-group-item">' + matchingPV + '</li>') });
-			$("#pvNameSearchMatchingList li").click(function() { $(this).toggleClass('list-group-item-info'); });
+			if(matchingPVs.length > 0) {
+				matchingPVs.forEach(function(matchingPV) { list.append('<li class="list-group-item">' + matchingPV + '</li>') });
+				$("#pvNameSearchMatchingList li").click(function() { $(this).toggleClass('list-group-item-info'); });
+			} else {
+				$("#pvNameSearchMatchingError").html("No PV names matched your search. Search using GLOB patterns, for example, QUAD:*:BDES");
+			}
 		});		
 	}
 }
