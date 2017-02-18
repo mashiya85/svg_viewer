@@ -85,7 +85,7 @@ function parseURLParameters() {
 	if(typeof queryString !== 'undefined' && queryString && queryString.length > 2) {
 		queries = queryString.substring(1).split("&");
 		for ( i = 0, l = queries.length; i < l; i++ ) {
-			var parts = queries[i].split('='), name = parts[0], val =  parts[1];
+			var parts = queries[i].split('='), name = parts[0], val =  decodeURIComponent(parts[1]);
 			// console.log("Name="+name+"Val="+val);
 			switch(name) {
 			case "pv":
@@ -95,7 +95,7 @@ function parseURLParameters() {
 			case "to":
 				viewerVars.end = new Date(val); break; 
 			case "serverURL":
-				viewerVars.serverURL = val; break; 
+				viewerVars.serverURL = val; console.log("Overriding server URL " + viewerVars.serverURL); break; 
 			default:
 				console.log("Unsupported parameter; adding it to the viewerVars anyways" + name);
 			viewerVars.name = val;
