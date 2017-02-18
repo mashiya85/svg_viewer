@@ -47,7 +47,7 @@ viewerVars.timerIndexFor3DAnimation = -1;
 // This should default to a path relative location that works from the appliance UI.
 // To develop/debug, override this to a absolute URL of the server with the data you are going to use for debugging/developing.
 // You can use the serverURL parameter to accomplish this.
-viewerVars.serverURL = "../../retrieval/data";
+viewerVars.serverURL = "../../data";
 
 // Google finance like list of time windows..
 viewerVars.selectorOptions = {
