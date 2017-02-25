@@ -298,7 +298,6 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 			}
 			// arguments[i] is the result of the .getJSON; the data is in [0]. The server sends this as an array hence the additional [0]
 			data = arguments[i][0][0];
-			console.log(data);
 			var pvName = data['meta'].name;
 			var egu = data['meta']['EGU'];
 			if(typeof egu == 'undefined' || !egu || egu.length <= 0) { egu = 'N/A'; }
