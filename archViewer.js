@@ -290,12 +290,13 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 	}
 	
 	$.when.apply($, pvDataPromises).done(function () {
-		// arguments is this magic jQuery variable for multiple deferred.
+		// The done is called with the results of the .getJSON's for all the submitted URLs. Use the Javascript arguments object to unpack the data.
 		for(var i = 0, l = arguments.length; i < l; i++) {
 			if(arguments[i][1] != "success") { 
 				console.log("Failure getting data for one of the PV's at " + 1);
 				continue;
 			}
+			// arguments[i] is the result of the .getJSON; the data is in [0]. The server sends this as an array hence the additional [0]
 			data = arguments[i][0][0];
 			console.log(data);
 			var pvName = data['meta'].name;
