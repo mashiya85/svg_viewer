@@ -879,7 +879,7 @@ function allowDrop(ev) {
 function drop(ev) {
     ev.preventDefault();
     var pvName = ev.dataTransfer.getData("text").trim();
-    console.log("Adding pv " + pvName);
+    console.log("Dropping in pv " + pvName);
 	addTraceForNewPVs([pvName]); 
 }
 
