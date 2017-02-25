@@ -871,7 +871,16 @@ function showHelp() {
 	console.log("Need to show help here");
 }
 
+function allowDrop(ev) {
+    ev.preventDefault();
+}
 
+function drop(ev) {
+    ev.preventDefault();
+    var pvName = ev.dataTransfer.getData("text").trim();
+    console.log("Adding pv " + pvName);
+	addTraceForNewPVs([pvName]); 
+}
 
 $(document).ready( function() {
 	parseURLParameters();
