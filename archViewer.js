@@ -292,12 +292,22 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 	$.when.apply($, pvDataPromises).done(function () {
 		// The done is called with the results of the .getJSON's for all the submitted URLs. Use the Javascript arguments object to unpack the data.
 		for(var i = 0, l = arguments.length; i < l; i++) {
-			if(arguments[i][1] != "success") { 
-				console.log("Failure getting data for one of the PV's at " + i);
-				continue;
+			if (pvsToFetchData.length == 1) {
+				if(arguments[1] != "success") { 
+					console.log("Failure getting data for one of the PV's at " + i);
+					console.log(arguments);
+					continue;
+				}
+				data = arguments[0][0];
+			} else {
+				if(arguments[i][1] != "success") { 
+					console.log("Failure getting data for one of the PV's at " + i);
+					console.log(arguments);
+					continue;
+				}
+				data = arguments[i][0][0];
 			}
 			// arguments[i] is the result of the .getJSON; the data is in [0]. The server sends this as an array hence the additional [0]
-			data = arguments[i][0][0];
 			var pvName = data['meta'].name;
 			var egu = data['meta']['EGU'];
 			if(typeof egu == 'undefined' || !egu || egu.length <= 0) { egu = 'N/A'; }
