@@ -307,6 +307,7 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 				}
 				data = arguments[i][0][0];
 			}
+			if(typeof data == "undefined" || !('meta' in data)) { console.log("Empty dataset for PV at" + i); continue}
 			// arguments[i] is the result of the .getJSON; the data is in [0]. The server sends this as an array hence the additional [0]
 			var pvName = data['meta'].name;
 			console.log("Plotting " + pvName);
