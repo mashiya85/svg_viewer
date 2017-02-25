@@ -309,6 +309,7 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 			}
 			// arguments[i] is the result of the .getJSON; the data is in [0]. The server sends this as an array hence the additional [0]
 			var pvName = data['meta'].name;
+			console.log("Plotting " + pvName);
 			var egu = data['meta']['EGU'];
 			if(typeof egu == 'undefined' || !egu || egu.length <= 0) { egu = 'N/A'; }
 			if(!('egu' in viewerVars.pvData[pvName])) {
@@ -467,7 +468,7 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 				break;
 			}
 		}
-	});
+	}).fail(function() { console.log("Failed to get data from the server"); });;
 }
 
 // The modebar is specified in the plotConfig. Use icons from font-awesome to create our modebar buttons.
