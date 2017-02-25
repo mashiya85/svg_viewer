@@ -396,9 +396,9 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 					xaxis: {type: 'date', rangeselector: viewerVars.selectorOptions, 
 						autorange: false, range: [viewerVars.start.getTime(), viewerVars.end.getTime()], 
 						title: getXAxisTitle(), 
-						titlefont: {color: '#7f7f7f'} 
+						titlefont: {color: '#7f7f7f', }
 					},
-					yaxis: {title: viewerVars.axis2egu['y1'], autorange: true}
+					yaxis: {title: viewerVars.axis2egu['y1'], autorange: true, exponentformat: 'e'}
 			};
 			var layoutChanges = getLayoutChangesForMultipleYAxes(layout);
 			$.extend(true, layout, layoutChanges);
