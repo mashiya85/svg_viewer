@@ -47,7 +47,8 @@ viewerVars.timerIndexFor3DAnimation = -1;
 // This should default to a path relative location that works from the appliance UI.
 // To develop/debug, override this to a absolute URL of the server with the data you are going to use for debugging/developing.
 // You can use the serverURL parameter to accomplish this.
-viewerVars.serverURL = "../../data";
+// viewerVars.serverURL = "../../data";
+viewerVars.serverURL = "http://localhost:17665/retrieval/data";
 
 // Google finance like list of time windows..
 viewerVars.selectorOptions = {
@@ -260,39 +261,43 @@ function processChangesOnXAxis(eventdata) {
 function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 	if(viewerVars.pvs.length == 0) { return; }
 
-	var pvsToFetchData = (xAxisChangeType == "AddNewTrace") ? newTracePVNames : viewerVars.pvs;	
-	var queryString = "", firstArg = true, fetchLatestMetadata = false;
-	for(i in pvsToFetchData) {
+	var pvsToFetchData = (xAxisChangeType == "AddNewTrace") ? newTracePVNames : viewerVars.pvs;
+	var pvDataPromises = new Array(pvsToFetchData.length), datas = new Array(pvsToFetchData.length);
+	for(var i in pvsToFetchData) {
+		var queryString = "";
 		pvName = pvsToFetchData[i];
-		if (!('DESC' in viewerVars.pvData[pvName])) { fetchLatestMetadata = true; }
 		if(viewerVars.binSize > 0) {
 			if (viewerVars.currentBinningOperator == "raw") {
-				queryString = queryString + (firstArg ? "pv=" : "&pv=")  + pvName;
-				firstArg = false;
+				queryString = "pv="  + pvName;
 			} else { 
-				queryString = queryString + (firstArg ? "pv=" : "&pv=") + viewerVars.currentBinningOperator + "_" + viewerVars.binSize + "(" + pvName + ")";
-				firstArg = false;
+				queryString = "pv=" + viewerVars.currentBinningOperator + "_" + viewerVars.binSize + "(" + pvName + ")";
 			}
 		} else {
-			queryString = queryString + (firstArg ? "pv=" : "&pv=")  + pvName;
-			firstArg = false;
+			queryString = "pv=" + pvName;
 		}
-	}
-	
-	var startEndQs = "&from="+viewerVars.queryStart.toISOString()+"&to="+viewerVars.queryEnd.toISOString();
-	if(fetchLatestMetadata) { startEndQs += "&fetchLatestMetadata=true"}
+		var startEndQs = "&from="+viewerVars.queryStart.toISOString()+"&to="+viewerVars.queryEnd.toISOString();
 
-	if(viewerVars.binSize > 0) {
-		var binnedQueryStart = new Date(Math.floor(viewerVars.queryStart.getTime()/(viewerVars.binSize*1000))*viewerVars.binSize*1000);
-		console.log("Starting binned data retrieval from " + binnedQueryStart.toISOString());
-		startEndQs = "&from="+binnedQueryStart.toISOString()+"&to="+viewerVars.queryEnd.toISOString();
+		if(viewerVars.binSize > 0) {
+			var binnedQueryStart = new Date(Math.floor(viewerVars.queryStart.getTime()/(viewerVars.binSize*1000))*viewerVars.binSize*1000);
+			console.log("Starting binned data retrieval from " + binnedQueryStart.toISOString());
+			startEndQs = "&from="+binnedQueryStart.toISOString()+"&to="+viewerVars.queryEnd.toISOString();
+		}
+		if (!('DESC' in viewerVars.pvData[pvName])) { startEndQs += "&fetchLatestMetadata=true"}
+		
+		var pvDataUrl = viewerVars.serverURL + "/getData.qw?" + queryString + startEndQs;
+		console.log(pvDataUrl);
+		pvDataPromises[i] = $.getJSON(pvDataUrl);
 	}
 	
-	console.log(viewerVars.serverURL + "/getDataForPVs.qw?" + queryString + startEndQs);
-	
-	$.getJSON( viewerVars.serverURL + "/getDataForPVs.qw?" + queryString + startEndQs, function( datas ) {
-		for(i = 0, l = datas.length; i < l; i++) {
-			data = datas[i];
+	$.when.apply($, pvDataPromises).done(function () {
+		// arguments is this magic jQuery variable for multiple deferred.
+		for(var i = 0, l = arguments.length; i < l; i++) {
+			if(arguments[i][1] != "success") { 
+				console.log("Failure getting data for one of the PV's at " + 1);
+				continue;
+			}
+			data = arguments[i][0][0];
+			console.log(data);
 			var pvName = data['meta'].name;
 			var egu = data['meta']['EGU'];
 			if(typeof egu == 'undefined' || !egu || egu.length <= 0) { egu = 'N/A'; }
