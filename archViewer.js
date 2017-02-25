@@ -293,7 +293,7 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 		// The done is called with the results of the .getJSON's for all the submitted URLs. Use the Javascript arguments object to unpack the data.
 		for(var i = 0, l = arguments.length; i < l; i++) {
 			if(arguments[i][1] != "success") { 
-				console.log("Failure getting data for one of the PV's at " + 1);
+				console.log("Failure getting data for one of the PV's at " + i);
 				continue;
 			}
 			// arguments[i] is the result of the .getJSON; the data is in [0]. The server sends this as an array hence the additional [0]
