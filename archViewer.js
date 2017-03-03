@@ -371,11 +371,13 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 			default:
 				viewerVars.pvData[pvName].secs = data['data'].map(function(sample) { return new Date(sample['millis']); });
 			    viewerVars.pvData[pvName].vals = data['data'].map(function(sample) { return sample['val']; });
+			    var mode = (viewerVars.pvData[pvName].vals.length < ($("#archViewer").width()/4)) ? "lines+markers" : "lines"; 
 			    viewerVars.pvData[pvName].trace = {
 					x: viewerVars.pvData[pvName].secs,
 					y: viewerVars.pvData[pvName].vals,
 					name: pvName,
 					type: 'scatter',
+					mode: mode,
 					yaxis: viewerVars.pvData[pvName].axis
 			    };
 			    if (viewerVars.binSize > 0 && viewerVars.currentBinningOperator.startsWith('errorbar')) {
