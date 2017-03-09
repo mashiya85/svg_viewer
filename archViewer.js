@@ -1,4 +1,4 @@
-// This is the plot.ly div; all the plot.ly functions work against this div. 
+// This is the plot.ly div; all the plot.ly functions work against this div.
 var myDiv = document.getElementById('archViewer');
 
 // viewerVars is a struct that contains all the information needed for the viewer;
@@ -16,13 +16,13 @@ viewerVars.pvData = {};
 viewerVars.egu2axis = {};
 viewerVars.axis2egu = {};
 // We support a limited number of y axes.
-viewerVars.supportedYAxes = ['y1', 'y2', 'y3']; 
+viewerVars.supportedYAxes = ['y1', 'y2', 'y3'];
 // Plot.ly confusingly names its yaxes differently for traces and the layout.
 viewerVars.y_short_2_long = {'y1' : 'yaxis', 'y2' : 'yaxis2', 'y3' : 'yaxis3'};
 //To get to the scale title groups, plot.ly uses another scheme for the class associated with the axis title.
 viewerVars.y_short_2_axisclass = {'y1' : 'ytitle', 'y2' : 'y2title', 'y3' : 'y3title'};
 // The first two y axes get added to the left&right; later ones affect the xaxis range. Maintain these layout changes here.
-viewerVars.yaxis_layout_changes = {'y3' : {'position' : 1.00, 'domain': [0, 0.94]}}  
+viewerVars.yaxis_layout_changes = {'y3' : {'position' : 1.00, 'domain': [0, 0.94]}}
 // Bin size being used for non-raw trace...
 viewerVars.binSize = 0;
 // Has the user fixed the bin size
@@ -43,7 +43,7 @@ viewerVars.timerIndexFor3DAnimation = -1;
 
 
 
-// This is one of the integration points with the server. 
+// This is one of the integration points with the server.
 // This should default to a path relative location that works from the appliance UI.
 // To develop/debug, override this to a absolute URL of the server with the data you are going to use for debugging/developing.
 // You can use the serverURL parameter to accomplish this.
@@ -57,7 +57,7 @@ viewerVars.selectorOptions = {
 		          {step: 'minute',  stepmode: 'backward', count: 15, label: '15m'   },
 		          {step: 'minute',  stepmode: 'backward', count: 30, label: '30m'   },
 		          {step: 'hour',    stepmode: 'backward', count: 1,  label: '1h'    },
-		          {step: 'hour',    stepmode: 'backward', count: 4,  label: '4h'    }, 
+		          {step: 'hour',    stepmode: 'backward', count: 4,  label: '4h'    },
 		          {step: 'hour',    stepmode: 'backward', count: 8,  label: '8h'    },
 		          {step: 'day',     stepmode: 'backward', count: 1,  label: '1d'    },
 		          {step: 'day',     stepmode: 'backward', count: 2,  label: '2d'    },
@@ -80,7 +80,7 @@ viewerVars.selectorOptions = {
 // You can also override the server URL using the serverURL parameter.
 
 // parse parameters into the viweerVars object
-function parseURLParameters() { 
+function parseURLParameters() {
 	queryString = window.location.search;
 	if(typeof queryString !== 'undefined' && queryString && queryString.length > 2) {
 		queries = queryString.substring(1).split("&");
@@ -91,11 +91,11 @@ function parseURLParameters() {
 			case "pv":
 				viewerVars.pvs.push(val); viewerVars.pvData[val] = {}; break;
 			case "from":
-				viewerVars.start = new Date(val); break; 
+				viewerVars.start = new Date(val); break;
 			case "to":
-				viewerVars.end = new Date(val); break; 
+				viewerVars.end = new Date(val); break;
 			case "serverURL":
-				viewerVars.serverURL = val; console.log("Overriding server URL " + viewerVars.serverURL); break; 
+				viewerVars.serverURL = val; console.log("Overriding server URL " + viewerVars.serverURL); break;
 			default:
 				console.log("Unsupported parameter; adding it to the viewerVars anyways" + name);
 			viewerVars.name = val;
@@ -114,7 +114,7 @@ function computeTraceIndices() {
 	var traces = [];
 	for(var i = 0; i < viewerVars.pvs.length; i++) {
 		pvName = viewerVars.pvs[i];
-		if('trace' in viewerVars.pvData[pvName]) { 
+		if('trace' in viewerVars.pvData[pvName]) {
 			var currTraceIndex = traces.length;
 			traces.push(viewerVars.pvData[pvName].trace);
 			if(!('traceIndex' in viewerVars.pvData[pvName])) {  viewerVars.pvData[pvName].traceIndex = currTraceIndex } ;
@@ -174,7 +174,7 @@ function determineBinSize() {
 		return;
 	}
 	var potentialBinSizes = [5, 10, 15, 30, 60, 120, 180, 300, 600, 1200, 1800, 3600, 7200, 14400, 21600, 43200, 86400];
-	for(i in potentialBinSizes) { 
+	for(i in potentialBinSizes) {
 		potentialBinSize = potentialBinSizes[i];
 		if((duration/potentialBinSize) <= 2*points) {
 			viewerVars.binSize = potentialBinSize;
@@ -185,14 +185,14 @@ function determineBinSize() {
 }
 
 // We listen to plotly_relayout events and guess the type of x-axis change based on the presence/absence of elements in the eventdata. Not the most ideal but...
-function processChangesOnXAxis(eventdata) {  
+function processChangesOnXAxis(eventdata) {
 	console.log( 'Received plotly_relayout event data:' + JSON.stringify(eventdata));
 	var previousStart = viewerVars.start;
 	var previousEnd = viewerVars.end;
 	if (('xaxis.range[0]' in eventdata && 'xaxis.range[1]' in eventdata)
 			|| ('xaxis2.range[0]' in eventdata && 'xaxis2.range[1]' in eventdata)
-			) { 
-		if('xaxis.range[0]' in eventdata && 'xaxis.range[1]' in eventdata) { 
+			) {
+		if('xaxis.range[0]' in eventdata && 'xaxis.range[1]' in eventdata) {
 			viewerVars.start = new Date(eventdata['xaxis.range[0]']);
 			viewerVars.end = new Date(eventdata['xaxis.range[1]']);
 		} else if('xaxis2.range[0]' in eventdata && 'xaxis2.range[1]' in eventdata) {
@@ -207,7 +207,7 @@ function processChangesOnXAxis(eventdata) {
 			viewerVars.queryEnd = viewerVars.end;
 			fetchDataFromServerAndPlot("ReplaceTraces");
 			return;
-		} 
+		}
 		if (Math.abs(duration - previousDuration) < 10*1000) {
 			console.log("Resolution stays the same; use extendTraces/prependTrace");
 			if(viewerVars.start < previousStart) {
@@ -227,7 +227,7 @@ function processChangesOnXAxis(eventdata) {
 			viewerVars.queryStart = viewerVars.start;
 			viewerVars.queryEnd = viewerVars.end;
 			fetchDataFromServerAndPlot("ReplaceTraces");
-			if(duration == 7*60*1000) { 
+			if(duration == 7*60*1000) {
 				console.log("Kicking off live mode..");
 				var layoutChanges = {'xaxis' : { 'autorange' : true}};
 				layoutChanges.xaxis.rangeselector = viewerVars.selectorOptions;
@@ -235,7 +235,7 @@ function processChangesOnXAxis(eventdata) {
 				Plotly.relayout(myDiv, layoutChanges);
 				viewerVars.liveModeTimer = setInterval(liveModeTick, 1*1000);
 			} else {
-				if(viewerVars.liveModeTimer != null) { 
+				if(viewerVars.liveModeTimer != null) {
 					clearInterval(viewerVars.liveModeTimer);
 					viewerVars.liveModeTimer = null;
 					var layoutChanges = {'xaxis' : { 'autorange' : false}};
@@ -268,7 +268,7 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 		if(viewerVars.binSize > 0) {
 			if (viewerVars.currentBinningOperator == "raw") {
 				queryString = "pv="  + pvName;
-			} else { 
+			} else {
 				queryString = "pv=" + viewerVars.currentBinningOperator + "_" + viewerVars.binSize + "(" + pvName + ")";
 			}
 		} else {
@@ -282,24 +282,24 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 			startEndQs = "&from="+binnedQueryStart.toISOString()+"&to="+viewerVars.queryEnd.toISOString();
 		}
 		if (!('DESC' in viewerVars.pvData[pvName])) { startEndQs += "&fetchLatestMetadata=true"}
-		
+
 		var pvDataUrl = viewerVars.serverURL + "/getData.qw?" + queryString + startEndQs;
 		console.log(pvDataUrl);
 		pvDataPromises[i] = $.getJSON(pvDataUrl);
 	}
-	
+
 	$.when.apply($, pvDataPromises).done(function () {
 		// The done is called with the results of the .getJSON's for all the submitted URLs. Use the Javascript arguments object to unpack the data.
 		for(var i = 0, l = arguments.length; i < l; i++) {
 			if (pvsToFetchData.length == 1) {
-				if(arguments[1] != "success") { 
+				if(arguments[1] != "success") {
 					console.log("Failure getting data for one of the PV's at " + i);
 					console.log(arguments);
 					continue;
 				}
 				data = arguments[0][0];
 			} else {
-				if(arguments[i][1] != "success") { 
+				if(arguments[i][1] != "success") {
 					console.log("Failure getting data for one of the PV's at " + i);
 					console.log(arguments);
 					continue;
@@ -332,7 +332,7 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 					continue;
 				}
 			}
-			if('DESC' in data['meta']) { 
+			if('DESC' in data['meta']) {
 				viewerVars.pvData[pvName]['DESC'] = data['meta']['DESC'];
 			}
 
@@ -347,19 +347,19 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 				}
 				return process3DPlot(pvName, data);
 			}
-				
+
 			// var XAxis_Change_Type = {"NewPlot":1, "ReplaceTraces":2, "LeftPan":3, "RightPan":4};
-			switch(xAxisChangeType) { 
+			switch(xAxisChangeType) {
 			case "LeftPan":
 				var previousDataSetFirstSampleMillis = myDiv.data[viewerVars.pvData[pvName].traceIndex].x[0].getTime();
 				console.log(data['data'].length + " samples from the server " + myDiv.data[viewerVars.pvData[pvName].traceIndex].x[0].toString());
-				
+
 				var secs = data['data'].filter(function(sample){ return (sample['millis']) < previousDataSetFirstSampleMillis; }).map(function(sample) { return new Date(sample['millis']); });
 				var vals = data['data'].filter(function(sample){ return (sample['millis']) < previousDataSetFirstSampleMillis; }).map(function(sample) { return sample['val']; });
 				viewerVars.pvData[pvName].update = { x: secs, y: vals };
 				console.log(secs.length + " after processing");
 				break;
-			case "RightPan": 
+			case "RightPan":
 				var previousDataSetLastSampleMillis = myDiv.data[viewerVars.pvData[pvName].traceIndex].x.slice(-1)[0].getTime();
 				var secs = data['data'].filter(function(sample){ return (sample['millis']) > previousDataSetLastSampleMillis; }).map(function(sample) { return new Date(sample['millis']); });
 				var vals = data['data'].filter(function(sample){ return (sample['millis']) > previousDataSetLastSampleMillis; }).map(function(sample) { return sample['val']; });
@@ -371,33 +371,33 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 			default:
 				viewerVars.pvData[pvName].secs = data['data'].map(function(sample) { return new Date(sample['millis']); });
 			    viewerVars.pvData[pvName].vals = data['data'].map(function(sample) { return sample['val']; });
-			    var mode = (viewerVars.pvData[pvName].vals.length < ($("#archViewer").width()/4)) ? "lines+markers" : "lines"; 
 			    viewerVars.pvData[pvName].trace = {
 					x: viewerVars.pvData[pvName].secs,
 					y: viewerVars.pvData[pvName].vals,
 					name: pvName,
 					type: 'scatter',
-					mode: mode,
+					mode: "lines",
+					line: {shape: 'vh'},
 					yaxis: viewerVars.pvData[pvName].axis
 			    };
 			    if (viewerVars.binSize > 0 && viewerVars.currentBinningOperator.startsWith('errorbar')) {
 			    	viewerVars.pvData[pvName].stdzVals = data['data'].map(function(sample) { return sample['fields']['stdz']; });
-			    	viewerVars.pvData[pvName].trace.error_y = {type: 'data', array: viewerVars.pvData[pvName].stdzVals, visible: true}; 
+			    	viewerVars.pvData[pvName].trace.error_y = {type: 'data', array: viewerVars.pvData[pvName].stdzVals, visible: true};
 			    }
-			    
+
 			    break;
-			} // Close the switch				
+			} // Close the switch
 		}
-		
+
 		if(!('layout' in myDiv)) { // This means we are creating the plotly object for the first time...
 			var layout = {
 					title: 'EPICS Archiver Appliance Viewer',
 					height: window.innerHeight*0.95,
 					showlegend: true,
 					legend: {x: 0, y: 1},
-					xaxis: {type: 'date', rangeselector: viewerVars.selectorOptions, 
-						autorange: false, range: [viewerVars.start.getTime(), viewerVars.end.getTime()], 
-						title: getXAxisTitle(), 
+					xaxis: {type: 'date', rangeselector: viewerVars.selectorOptions,
+						autorange: false, range: [viewerVars.start.getTime(), viewerVars.end.getTime()],
+						title: getXAxisTitle(),
 						titlefont: {color: '#7f7f7f', }
 					},
 					yaxis: {title: viewerVars.axis2egu['y1'], autorange: true, exponentformat: 'e'}
@@ -409,9 +409,9 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 			viewerVars.plotType = viewerVars.plotTypeEnum.SCATTER_2D;
 			var plotConfig = generatePlotConfig();
 			Plotly.newPlot('archViewer', traces, layout, plotConfig).then(function() {
-				myDiv.on('plotly_relayout', processChangesOnXAxis);	
+				myDiv.on('plotly_relayout', processChangesOnXAxis);
 				addToolTipsToTraceLegends();
-			});			
+			});
 		} else { // We have already created the plotly object; use add/delete API's
 			var updateXs = [], updateYs = [], updateIndices = [], newTraces = [], newTraceIndices = [];
 			for(i = 0; i < viewerVars.pvs.length; i++) {
@@ -419,7 +419,7 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 				// Skip PV's that have not been mapped to an axis
 				if(!('axis' in viewerVars.pvData[pvName])) continue;
 
-				if('update' in viewerVars.pvData[pvName]) { 
+				if('update' in viewerVars.pvData[pvName]) {
 					updateXs.push(viewerVars.pvData[pvName].update.x);
 					updateYs.push(viewerVars.pvData[pvName].update.y);
 					updateIndices.push(viewerVars.pvData[pvName].traceIndex);
@@ -428,7 +428,7 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 				newTraces.push(viewerVars.pvData[pvName].trace);
 				newTraceIndices.push(viewerVars.pvData[pvName].traceIndex);
 			}
-			switch(xAxisChangeType) { 
+			switch(xAxisChangeType) {
 			case "LeftPan":
 				console.log("Left panning " + updateIndices);
 				Plotly.prependTraces(myDiv, {x: updateXs, y: updateYs}, updateIndices);
@@ -441,7 +441,7 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 				console.log("Replacing traces " + newTraceIndices);
 				updateXAxisTitle();
 				Plotly.deleteTraces(myDiv, newTraceIndices);
-				Plotly.addTraces(myDiv, newTraces).then(function() { reflectBinSizeColorOnLegend(); addToolTipsToTraceLegends(); });				
+				Plotly.addTraces(myDiv, newTraces).then(function() { reflectBinSizeColorOnLegend(); addToolTipsToTraceLegends(); });
 				break;
 			case "AddNewTrace":
 				var traces = computeTraceIndices();
@@ -491,24 +491,24 @@ function generatePlotConfig() {
 	    };
 	var downloadIcon = {
 	        'width': 1664,
-	        'path': 'M1280 192q0 26 -19 45t-45 19t-45 -19t-19 -45t19 -45t45 -19t45 19t19 45zM1536 192q0 26 -19 45t-45 19t-45 -19t-19 -45t19 -45t45 -19t45 19t19 45zM1664 416v-320q0 -40 -28 -68t-68 -28h-1472q-40 0 -68 28t-28 68v320q0 40 28 68t68 28h465l135 -136 q58 -56 136 -56t136 56l136 136h464q40 0 68 -28t28 -68zM1339 985q17 -41 -14 -70l-448 -448q-18 -19 -45 -19t-45 19l-448 448q-31 29 -14 70q17 39 59 39h256v448q0 26 19 45t45 19h256q26 0 45 -19t19 -45v-448h256q42 0 59 -39z',	
+	        'path': 'M1280 192q0 26 -19 45t-45 19t-45 -19t-19 -45t19 -45t45 -19t45 19t19 45zM1536 192q0 26 -19 45t-45 19t-45 -19t-19 -45t19 -45t45 -19t45 19t19 45zM1664 416v-320q0 -40 -28 -68t-68 -28h-1472q-40 0 -68 28t-28 68v320q0 40 28 68t68 28h465l135 -136 q58 -56 136 -56t136 56l136 136h464q40 0 68 -28t28 -68zM1339 985q17 -41 -14 -70l-448 -448q-18 -19 -45 -19t-45 19l-448 448q-31 29 -14 70q17 39 59 39h256v448q0 26 19 45t45 19h256q26 0 45 -19t19 -45v-448h256q42 0 59 -39z',
 	        'ascent': 1450,
 	        'descent': -200
 	};
 	var linkIcon = {
 	        'width': 1664,
-	        'path': 'M1456 320q0 40 -28 68l-208 208q-28 28 -68 28q-42 0 -72 -32q3 -3 19 -18.5t21.5 -21.5t15 -19t13 -25.5t3.5 -27.5q0 -40 -28 -68t-68 -28q-15 0 -27.5 3.5t-25.5 13t-19 15t-21.5 21.5t-18.5 19q-33 -31 -33 -73q0 -40 28 -68l206 -207q27 -27 68 -27q40 0 68 26 l147 146q28 28 28 67zM753 1025q0 40 -28 68l-206 207q-28 28 -68 28q-39 0 -68 -27l-147 -146q-28 -28 -28 -67q0 -40 28 -68l208 -208q27 -27 68 -27q42 0 72 31q-3 3 -19 18.5t-21.5 21.5t-15 19t-13 25.5t-3.5 27.5q0 40 28 68t68 28q15 0 27.5 -3.5t25.5 -13t19 -15 t21.5 -21.5t18.5 -19q33 31 33 73zM1648 320q0 -120 -85 -203l-147 -146q-83 -83 -203 -83q-121 0 -204 85l-206 207q-83 83 -83 203q0 123 88 209l-88 88q-86 -88 -208 -88q-120 0 -204 84l-208 208q-84 84 -84 204t85 203l147 146q83 83 203 83q121 0 204 -85l206 -207 q83 -83 83 -203q0 -123 -88 -209l88 -88q86 88 208 88q120 0 204 -84l208 -208q84 -84 84 -204z',	
+	        'path': 'M1456 320q0 40 -28 68l-208 208q-28 28 -68 28q-42 0 -72 -32q3 -3 19 -18.5t21.5 -21.5t15 -19t13 -25.5t3.5 -27.5q0 -40 -28 -68t-68 -28q-15 0 -27.5 3.5t-25.5 13t-19 15t-21.5 21.5t-18.5 19q-33 -31 -33 -73q0 -40 28 -68l206 -207q27 -27 68 -27q40 0 68 26 l147 146q28 28 28 67zM753 1025q0 40 -28 68l-206 207q-28 28 -68 28q-39 0 -68 -27l-147 -146q-28 -28 -28 -67q0 -40 28 -68l208 -208q27 -27 68 -27q42 0 72 31q-3 3 -19 18.5t-21.5 21.5t-15 19t-13 25.5t-3.5 27.5q0 40 28 68t68 28q15 0 27.5 -3.5t25.5 -13t19 -15 t21.5 -21.5t18.5 -19q33 31 33 73zM1648 320q0 -120 -85 -203l-147 -146q-83 -83 -203 -83q-121 0 -204 85l-206 207q-83 83 -83 203q0 123 88 209l-88 88q-86 -88 -208 -88q-120 0 -204 84l-208 208q-84 84 -84 204t85 203l147 146q83 83 203 83q121 0 204 -85l206 -207 q83 -83 83 -203q0 -123 -88 -209l88 -88q86 88 208 88q120 0 204 -84l208 -208q84 -84 84 -204z',
 	        'ascent': 1450,
 	        'descent': -200
 	};
-	
+
 	var helpIcon = {
 	        'width': 1664,
-	        'path': 'M880 336v-160q0 -14 -9 -23t-23 -9h-160q-14 0 -23 9t-9 23v160q0 14 9 23t23 9h160q14 0 23 -9t9 -23zM1136 832q0 -50 -15 -90t-45.5 -69t-52 -44t-59.5 -36q-32 -18 -46.5 -28t-26 -24t-11.5 -29v-32q0 -14 -9 -23t-23 -9h-160q-14 0 -23 9t-9 23v68q0 35 10.5 64.5 t24 47.5t39 35.5t41 25.5t44.5 21q53 25 75 43t22 49q0 42 -43.5 71.5t-95.5 29.5q-56 0 -95 -27q-29 -20 -80 -83q-9 -12 -25 -12q-11 0 -19 6l-108 82q-10 7 -12 20t5 23q122 192 349 192q129 0 238.5 -89.5t109.5 -214.5zM768 1280q-130 0 -248.5 -51t-204 -136.5 t-136.5 -204t-51 -248.5t51 -248.5t136.5 -204t204 -136.5t248.5 -51t248.5 51t204 136.5t136.5 204t51 248.5t-51 248.5t-136.5 204t-204 136.5t-248.5 51zM1536 640q0 -209 -103 -385.5t-279.5 -279.5t-385.5 -103t-385.5 103t-279.5 279.5t-103 385.5t103 385.5 t279.5 279.5t385.5 103t385.5 -103t279.5 -279.5t103 -385.5z',	
+	        'path': 'M880 336v-160q0 -14 -9 -23t-23 -9h-160q-14 0 -23 9t-9 23v160q0 14 9 23t23 9h160q14 0 23 -9t9 -23zM1136 832q0 -50 -15 -90t-45.5 -69t-52 -44t-59.5 -36q-32 -18 -46.5 -28t-26 -24t-11.5 -29v-32q0 -14 -9 -23t-23 -9h-160q-14 0 -23 9t-9 23v68q0 35 10.5 64.5 t24 47.5t39 35.5t41 25.5t44.5 21q53 25 75 43t22 49q0 42 -43.5 71.5t-95.5 29.5q-56 0 -95 -27q-29 -20 -80 -83q-9 -12 -25 -12q-11 0 -19 6l-108 82q-10 7 -12 20t5 23q122 192 349 192q129 0 238.5 -89.5t109.5 -214.5zM768 1280q-130 0 -248.5 -51t-204 -136.5 t-136.5 -204t-51 -248.5t51 -248.5t136.5 -204t204 -136.5t248.5 -51t248.5 51t204 136.5t136.5 204t51 248.5t-51 248.5t-136.5 204t-204 136.5t-248.5 51zM1536 640q0 -209 -103 -385.5t-279.5 -279.5t-385.5 -103t-385.5 103t-279.5 279.5t-103 385.5t103 385.5 t279.5 279.5t385.5 103t385.5 -103t279.5 -279.5t103 -385.5z',
 	        'ascent': 1450,
 	        'descent': -200
 	};
-	
+
 	var newModeBarButtons = [];
 	newModeBarButtons.push({ name: 'Start/End',
 		icon: calendarIcon,
@@ -516,7 +516,7 @@ function generatePlotConfig() {
 			$("#dialog_startTime").val(moment(viewerVars.start).format("YYYY/MM/DD HH:mm:ss"));
 			$("#dialog_endTime").val(moment(viewerVars.end).format("YYYY/MM/DD HH:mm:ss"));
 			$('#startEndTimeModal').modal('show');
-		}}); 
+		}});
 	if(viewerVars.plotType == viewerVars.plotTypeEnum.SCATTER_2D) {
 		newModeBarButtons.push({ name: 'Add PVs',
 			icon: searchIcon,
@@ -541,8 +541,8 @@ function generatePlotConfig() {
 		icon: helpIcon,
 		click: showHelp
 	});
-	
-	
+
+
 	// Add mode bar buttons for start+end time etc
 	var plotConfig = {
 			displaylogo: false,
@@ -556,7 +556,7 @@ function generatePlotConfig() {
 function addTraceForNewPVs(pvNames) {
 	var addingForTheFirstTime = (viewerVars.pvs.length == 0);
 	viewerVars.pvs = viewerVars.pvs.concat(pvNames);
-	pvNames.forEach(function(nm,i) { viewerVars.pvData[nm] = {}; }); 
+	pvNames.forEach(function(nm,i) { viewerVars.pvData[nm] = {}; });
 	console.log("Adding " + pvNames + " to traces");
 	if(addingForTheFirstTime) {
 		fetchDataFromServerAndPlot("NewPlot");
@@ -575,12 +575,12 @@ function process3DPlot(pvName, data) {
 		clearInterval(viewerVars.timerIndexFor3DAnimation);
 		// console.log("Stopped existing timer");
 	}
-	
+
 	viewerVars.currentlyAnimating3DPlot = true;
 	viewerVars.timerIndexFor3DAnimation = setInterval(frame, 1000);
 	var totalFrames = viewerVars.pvData[pvName].secs.length;
 	var currentFrame = 0;
-		
+
 	function moveToFrame(frameTimeStr) { // Process use clicks on the time plot to move to a particular point.
 		var frameTime = new Date(frameTimeStr);
 		for(i = 0; i < totalFrames; i++) {
@@ -592,7 +592,7 @@ function process3DPlot(pvName, data) {
 			}
 		}
 	}
-	
+
 	function cancel() {
 		viewerVars.currentlyAnimating3DPlot = false;
 		clearInterval(viewerVars.timerIndexFor3DAnimation);
@@ -621,7 +621,7 @@ function process3DPlot(pvName, data) {
 				mode: "markers",
 				marker: { size: 10 }
 		};
-		
+
 		if('layout' in myDiv) { // Plotly object already exists.
 			Plotly.deleteTraces(myDiv, [0,1])
 			.then(function() {
@@ -637,17 +637,17 @@ function process3DPlot(pvName, data) {
 					xaxis: {type: 'linear', autorange: true},
 					yaxis: {autorange: true, domain: [0, 0.8]},
 					xaxis2: {type: 'date', rangeselector: viewerVars.selectorOptions, autorange: false, range: [viewerVars.start.getTime(), viewerVars.end.getTime()], anchor: 'y2'},
-					yaxis2: {autorange: false, range: [0, 10], domain: [0.8, 1.0], anchor: 'x2'},				
+					yaxis2: {autorange: false, range: [0, 10], domain: [0.8, 1.0], anchor: 'x2'},
 			};
-			
+
 			var plotConfig = generatePlotConfig();
 			Plotly.newPlot('archViewer', [valueTrace, timeTrace], layout, plotConfig)
-			.then(function() { 
+			.then(function() {
 				myDiv.on('plotly_relayout', processChangesOnXAxis);
 			});
 		}
 
-		
+
 		currentFrame = (currentFrame + 1 ) % totalFrames;
 		if(currentFrame == 0) {
 			cancel();
@@ -657,7 +657,7 @@ function process3DPlot(pvName, data) {
 
 // get the X-Axis title string based on the bin size and the current operator.
 function getXAxisTitle() {
-	if(viewerVars.binSize <= 0 || viewerVars.currentBinningOperator == "raw") { 
+	if(viewerVars.binSize <= 0 || viewerVars.currentBinningOperator == "raw") {
 		return "<span>" + "Raw Data" + "</span><span>[" + 0 + "(s)]</span>";
 	} else {
 		return "<span>" + viewerVars.currentBinningOperator + "</span><span>[" + viewerVars.binSize + "(s)]</span>";
@@ -694,7 +694,7 @@ function reflectBinSizeColorOnLegend() {
 // Done with plotly integration.
 // Functions for the page start here.
 
-function liveModeTick() { // Timer function for the live mode tick... 
+function liveModeTick() { // Timer function for the live mode tick...
 	var now = new Date();
 	viewerVars.end = now;
 	viewerVars.start = new Date(now.getTime() - 7*60*1000);
@@ -711,7 +711,7 @@ function startAndEndTimeSelected() {
 	viewerVars.queryStart = viewerVars.start;
 	viewerVars.queryEnd = viewerVars.end;
 
-	if(viewerVars.plotType == viewerVars.plotTypeEnum.SCATTER_2D) { 
+	if(viewerVars.plotType == viewerVars.plotTypeEnum.SCATTER_2D) {
 		var currXAxis = myDiv.layout.xaxis;
 		layoutChanges = {'xaxis': { 'autorange' : false }};
 		layoutChanges.xaxis.rangeselector = viewerVars.selectorOptions;
@@ -726,8 +726,8 @@ function startAndEndTimeSelected() {
 		layoutChanges.xaxis2.domain = currXAxis.domain;
 		layoutChanges.xaxis2.anchor = 'y2';
 		Plotly.relayout(myDiv, layoutChanges);
-	}	
-	
+	}
+
 	console.log("Fetching data from " + viewerVars.start + " to " + viewerVars.end );
 	fetchDataFromServerAndPlot("ReplaceTraces");
 }
@@ -741,7 +741,7 @@ function searchForPVsMatchingPattern() {
 		console.log(pattern + " is not a glob pattern");
 		addTraceForNewPVs([pattern]);
 		return;
-	} 
+	}
 	if(pattern) {
 		console.log("Search and add PVs for pattern " + pattern);
 		var list = $("#pvNameSearchMatchingList");
@@ -754,14 +754,14 @@ function searchForPVsMatchingPattern() {
 			} else {
 				$("#pvNameSearchMatchingError").html("No PV names matched your search. Search using GLOB patterns, for example, QUAD:*:BDES");
 			}
-		});		
+		});
 	}
 }
 
 function addSelectedSearchPVs(e) {
 	var selectedPVs = [];
 	$("#pvNameSearchMatchingList li.list-group-item-info").each(function(index) { selectedPVs.push($(this).text())});
-	if(selectedPVs.length > 0) { addTraceForNewPVs(selectedPVs); } 
+	if(selectedPVs.length > 0) { addTraceForNewPVs(selectedPVs); }
 	$("#pvNameSearchMatchingList").empty();
 }
 
@@ -799,10 +799,10 @@ function getCurrentDataAsDict() {
 		for(var i in len) { ret.push("N/A"); }
 		return ret;
 	}
-	
+
 	var tbl = {}
 	var names = [];
-	if(viewerVars.plotType == viewerVars.plotTypeEnum.SCATTER_2D) { 
+	if(viewerVars.plotType == viewerVars.plotTypeEnum.SCATTER_2D) {
 		for(i in myDiv.data) {
 			var data = myDiv.data[i];
 			var dlen = data.x.length;
@@ -881,7 +881,7 @@ function drop(ev) {
     ev.preventDefault();
     var pvName = ev.dataTransfer.getData("text").trim();
     console.log("Dropping in pv " + pvName);
-	addTraceForNewPVs([pvName]); 
+	addTraceForNewPVs([pvName]);
 }
 
 $(document).ready( function() {
@@ -892,9 +892,9 @@ $(document).ready( function() {
 	} else {
 		fetchDataFromServerAndPlot("NewPlot");
 	}
-	
+
 	// There is a big SVG drag area over much of the plot; so we do this to determine if the user has clicked on some plot element.
-	$(document).click(function(e) { 
+	$(document).click(function(e) {
 		for(var shortName in viewerVars.axis2egu) { // Check to see if the user clicked on one of the y-axes
 			var axisObj = $("." + viewerVars.y_short_2_axisclass[shortName])[0];
 			if (typeof axisObj == 'undefined') continue;
@@ -905,7 +905,7 @@ $(document).ready( function() {
 				return;
 			}
 		}
-		
+
 		var xaxisDom = $(".xtitle")[0];
 		if(typeof xaxisDom !== 'undefined') { // Check to see if the user clicked on one of the x-axis components
 			var bRect = xaxisDom.getBoundingClientRect();
@@ -938,10 +938,10 @@ $(document).ready( function() {
 							}
 						}
 					}
-					computedTextLengthSoFar = widthSoFar; 
+					computedTextLengthSoFar = widthSoFar;
 				}
 				return;
-			}		
+			}
 		}
-	});	
+	});
 });
