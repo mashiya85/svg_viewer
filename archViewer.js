@@ -105,7 +105,7 @@ function parseURLParameters() {
 
 
 // Figure out the trace index for each PV that has a trace and return a array of traces in that order.
-// Plot.ly thinks of PV's in terms of traces; so we maintain a track index for each PV that we are showing on the plot.
+// Plot.ly thinks of PV's in terms of traces; so we maintain a trace index for each PV that we are showing on the plot.
 function computeTraceIndices() {
 	var traces = [];
 	for(var i = 0; i < viewerVars.pvs.length; i++) {
@@ -119,7 +119,7 @@ function computeTraceIndices() {
 	return traces;
 }
 
-// Do the layout changes needed to support more than one y-axis. Return a delta object
+// Do the layout changes needed to support more than one y-axis. Return a delta layoutChanges object
 // When you add more than two axes, we also need to adjust the position of the new axes and the domain of the xaxis.
 // To get around a bug in Plotly, when we relayout the x, we will also have to carry over some of the current x axis settings.
 function getLayoutChangesForMultipleYAxes(layout) {
