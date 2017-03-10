@@ -46,7 +46,6 @@ viewerVars.timerIndexFor3DAnimation = -1;
 // This is one of the integration points with the server.
 // This should default to a path relative location that works from the appliance UI.
 // To develop/debug, override this to a absolute URL of the server with the data you are going to use for debugging/developing.
-// You can use the serverURL parameter to accomplish this.
 viewerVars.serverURL = "../../data";
 
 // Google finance like list of time windows..
@@ -77,7 +76,6 @@ viewerVars.selectorOptions = {
 // You can use pass in any number of pvs using the pv argument, for example, pv=VPIO:IN20:111:VRAW&pv=XCOR:LI21:101:BDES etc.
 // We also support start and end times using the from and to arguments; these are date times that work with Date.parse. At least in chrome/firefox, ISO 9601 (eg: 2016-08-29T17:38:16.901Z) seem to work.
 // For example, viewerURL?pv=VPIO:IN20:111:VRAW&pv=XCOR:LI21:101:BDES&from=2016-08-29T16:38:16.901&to=2016-08-29T17:38:16.901
-// You can also override the server URL using the serverURL parameter.
 
 // parse parameters into the viweerVars object
 function parseURLParameters() {
@@ -94,8 +92,6 @@ function parseURLParameters() {
 				viewerVars.start = new Date(val); break;
 			case "to":
 				viewerVars.end = new Date(val); break;
-			case "serverURL":
-				viewerVars.serverURL = val; console.log("Overriding server URL " + viewerVars.serverURL); break;
 			default:
 				console.log("Unsupported parameter; adding it to the viewerVars anyways" + name);
 			viewerVars.name = val;
