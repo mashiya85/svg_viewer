@@ -1,7 +1,23 @@
 #!/usr/bin/env python
 '''
 A simple python based proxy for serving the viewer for the EPICS Archiver Appliance. 
-The EPICS archiver appliance bundles a copy of this viewer; however, use this proxy as a starting point if you want a separate deployment of the viewer. 
+The EPICS archiver appliance bundles a copy of this viewer; however, use this proxy as a starting point if you want a separate deployment of the viewer.
+
+If you are using Apache to front your appliances; you could use Apache to do a similar thing.
+
+<Directory /location_where_you_have_a_copy_of_the/svg_viewer>
+    Options None
+    AllowOverride None
+    Order allow,deny
+    Allow from all
+    ExpiresActive On
+    ExpiresDefault "access plus 5 minutes"
+</Directory>
+Alias "/archiveviewer/retrieval/ui/viewer" "/location_where_you_have_a_copy_of_the/svg_viewer"
+ProxyPassMatch "^/archiveviewer/retrieval/(data|bpl)/(.+)" balancer://archiver/$1/$2
+
+The viewer URL then becomes http://your_web_server/archiveviewer/retrieval/ui/viewer/archViewer.html.
+ 
 '''
 
 import SocketServer
