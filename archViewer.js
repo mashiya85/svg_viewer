@@ -565,6 +565,7 @@ function addTraceForNewPVs(pvNames) {
 function process3DPlot(pvName, data) {
 	viewerVars.pvData[pvName].secs = data['data'].map(function(sample) { return new Date(sample['millis']); });
 	viewerVars.pvData[pvName].vals = data['data'].map(function(sample) { return sample['val']; });
+	if(viewerVars.pvData[pvName].vals.length <= 0) { return; }
 
 	if(viewerVars.currentlyAnimating3DPlot) {
 		viewerVars.currentlyAnimating3DPlot = false;
