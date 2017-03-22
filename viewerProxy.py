@@ -16,7 +16,7 @@ class Proxy(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_GET(self):
         print self.path
         if self.path.startswith('/retrieval/ui/viewer/'):
-            filename = '/Users/mshankar/Documents/workspace/svg_viewer/' + self.path[len('/retrieval/ui/viewer/'):].split('?')[0]
+            filename = '.' + self.path[len('/retrieval/ui/viewer/'):].split('?')[0]
             # print filename
             self.copyfile(open(filename, 'r'), self.wfile)
         else:
