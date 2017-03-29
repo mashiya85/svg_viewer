@@ -32,9 +32,10 @@ class Proxy(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_GET(self):
         print self.path
         if self.path.startswith('/retrieval/ui/viewer/'):
-            filename = '.' + self.path[len('/retrieval/ui/viewer/'):].split('?')[0]
+            filename = self.path[len('/retrieval/ui/viewer/'):].split('?')[0]
             # print filename
-            self.copyfile(open(filename, 'r'), self.wfile)
+            self.path = filename
+            SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
         else:
             proxiedurl = retrievalURL + self.path[len('/retrieval'):]
             # print proxiedurl
