@@ -907,35 +907,31 @@ $(document).ready( function() {
 		if(typeof xaxisDom !== 'undefined') { // Check to see if the user clicked on one of the x-axis components
 			var bRect = xaxisDom.getBoundingClientRect();
 			var leftOffset = bRect.left + window.scrollX, topOffset = bRect.top + window.scrollY;
-			if(e.pageX >= leftOffset && e.pageX <= (leftOffset + bRect.width) && e.pageY >= topOffset && e.pageY <= (topOffset + bRect.height)) {
-				var computedTextLengthSoFar = 0;
-				for(var lbch = 0; lbch < xaxisDom.childNodes.length; lbch++) {
-					var bb = xaxisDom.childNodes[lbch].getBBox();
-					var widthSoFar = computedTextLengthSoFar + xaxisDom.childNodes[lbch].getComputedTextLength();
-					if(e.pageX >= (bb.x + computedTextLengthSoFar) && e.pageX <= (bb.x + widthSoFar) && e.pageY >= bb.y && e.pageY <= (bb.y + bb.height)) {
-						// We assume that the viewer will always prefer raw mode; so turn off the operator selection is bin size is 0.
-						if(viewerVars.binSize > 0) {
-							if(lbch == 1) {
-								if(viewerVars.userFixedBinSize) {
-									viewerVars.userFixedBinSize = false;
-									reflectBinSizeColorOnLegend();
-								} else {
-									$('#binSizeModal').modal('show');
-								}
-							    return;
-							} else {
-								// Toggle between the various operators; note that this is a global operation for now and applies to all PV's
-								var nextBinningOperator = viewerVars.binningOperatorsList[((viewerVars.binningOperatorsList.indexOf(viewerVars.currentBinningOperator)+1)%viewerVars.binningOperatorsList.length)];
-								if(nextBinningOperator == "raw" && ((viewerVars.end.getTime() - viewerVars.start.getTime()) > 2*24*60*60*1000)) {
-									// Skip switching into the raw operator if the duration of the plot is more than 2 days.
-									nextBinningOperator = viewerVars.binningOperatorsList[((viewerVars.binningOperatorsList.indexOf(nextBinningOperator)+1)%viewerVars.binningOperatorsList.length)];
-								}
-								viewerVars.currentBinningOperator = nextBinningOperator;
-								fetchDataFromServerAndPlot("ReplaceTraces");
-							}
+			if(e.pageX >= leftOffset && e.pageX <= (leftOffset + bRect.width) && e.pageY >= topOffset && e.pageY <= (topOffset + bRect.height)) { // console.log("We are within the X-Axis label now");
+				try { 
+					var ppl = xaxisDom.childNodes[0].getBBox().x; var bnl = ppl + xaxisDom.childNodes[0].getComputedTextLength();
+				} catch(e) { 
+					var ppl = xaxisDom.childNodes[0].getBoundingClientRect().left + window.scrollX; var bnl = ppl + xaxisDom.childNodes[0].getComputedTextLength();
+				}
+				if(e.pageX >= ppl && e.pageX <= bnl ) {
+					// Toggle between the various operators; note that this is a global operation for now and applies to all PV's
+					var nextBinningOperator = viewerVars.binningOperatorsList[((viewerVars.binningOperatorsList.indexOf(viewerVars.currentBinningOperator)+1)%viewerVars.binningOperatorsList.length)];
+					if(nextBinningOperator == "raw" && ((viewerVars.end.getTime() - viewerVars.start.getTime()) > 2*24*60*60*1000)) {
+						// Skip switching into the raw operator if the duration of the plot is more than 2 days.
+						nextBinningOperator = viewerVars.binningOperatorsList[((viewerVars.binningOperatorsList.indexOf(nextBinningOperator)+1)%viewerVars.binningOperatorsList.length)];
+					}
+					viewerVars.currentBinningOperator = nextBinningOperator;
+					fetchDataFromServerAndPlot("ReplaceTraces");
+				} else {
+					// We assume that the viewer will always prefer raw mode; so turn off the operator selection is bin size is 0.
+					if(viewerVars.binSize > 0) {
+						if(viewerVars.userFixedBinSize) {
+							viewerVars.userFixedBinSize = false;
+							reflectBinSizeColorOnLegend();
+						} else {
+							$('#binSizeModal').modal('show');
 						}
 					}
-					computedTextLengthSoFar = widthSoFar;
 				}
 				return;
 			}
