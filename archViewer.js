@@ -189,11 +189,11 @@ function processChangesOnXAxis(eventdata) {
 			|| ('xaxis2.range[0]' in eventdata && 'xaxis2.range[1]' in eventdata)
 			) {
 		if('xaxis.range[0]' in eventdata && 'xaxis.range[1]' in eventdata) {
-			viewerVars.start = new Date(eventdata['xaxis.range[0]']);
-			viewerVars.end = new Date(eventdata['xaxis.range[1]']);
+			viewerVars.start = moment(eventdata['xaxis.range[0]']).toDate();
+			viewerVars.end = moment(eventdata['xaxis.range[1]']).toDate();
 		} else if('xaxis2.range[0]' in eventdata && 'xaxis2.range[1]' in eventdata) {
-			viewerVars.start = new Date(eventdata['xaxis2.range[0]']);
-			viewerVars.end = new Date(eventdata['xaxis2.range[1]']);
+			viewerVars.start = moment(eventdata['xaxis2.range[0]']).toDate();
+			viewerVars.end = moment(eventdata['xaxis2.range[1]']).toDate();
 		}
 		var previousDuration = previousEnd.getTime() - previousStart.getTime();
 		var duration = viewerVars.end.getTime() - viewerVars.start.getTime();
@@ -244,7 +244,7 @@ function processChangesOnXAxis(eventdata) {
 		}
 	} else if ('xaxis.range[0]' in eventdata) {
 		console.log("We compressed the time scale on the left side");
-		viewerVars.start = new Date(eventdata['xaxis.range[0]']);
+		viewerVars.start = moment(eventdata['xaxis.range[0]']).toDate();
 		viewerVars.queryStart = viewerVars.start;
 		viewerVars.queryEnd = previousStart;
 		fetchDataFromServerAndPlot("LeftPan");
@@ -579,7 +579,7 @@ function process3DPlot(pvName, data) {
 	var currentFrame = 0;
 
 	function moveToFrame(frameTimeStr) { // Process use clicks on the time plot to move to a particular point.
-		var frameTime = new Date(frameTimeStr);
+		var frameTime = moment(frameTimeStr).toDate();
 		for(i = 0; i < totalFrames; i++) {
 			if(viewerVars.pvData[pvName].secs[i].getTime() == frameTime.getTime()) {
 				// console.log("Moving to frame " + currentFrame);
