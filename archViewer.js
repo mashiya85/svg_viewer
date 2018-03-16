@@ -744,7 +744,7 @@ function searchForPVsMatchingPattern() {
 		var list = $("#pvNameSearchMatchingList");
 		list.empty();
 		$("#pvNameSearchMatchingError").empty();
-		$.getJSON( viewerVars.serverURL + "/../bpl/getMatchingPVs?limit=50&pv=" + pattern, function(matchingPVs){
+		$.getJSON( viewerVars.serverURL + "/../bpl/getMatchingPVs?limit=10000&pv=" + pattern, function(matchingPVs){
 			if(matchingPVs.length > 0) {
 				matchingPVs.forEach(function(matchingPV) { list.append('<li class="list-group-item">' + matchingPV + '</li>') });
 				$("#pvNameSearchMatchingList li").click(function() { $(this).toggleClass('list-group-item-info'); });
@@ -908,9 +908,9 @@ $(document).ready( function() {
 			var bRect = xaxisDom.getBoundingClientRect();
 			var leftOffset = bRect.left + window.scrollX, topOffset = bRect.top + window.scrollY;
 			if(e.pageX >= leftOffset && e.pageX <= (leftOffset + bRect.width) && e.pageY >= topOffset && e.pageY <= (topOffset + bRect.height)) { // console.log("We are within the X-Axis label now");
-				try { 
+				try {
 					var ppl = xaxisDom.childNodes[0].getBBox().x; var bnl = ppl + xaxisDom.childNodes[0].getComputedTextLength();
-				} catch(e) { 
+				} catch(e) {
 					var ppl = xaxisDom.childNodes[0].getBoundingClientRect().left + window.scrollX; var bnl = ppl + xaxisDom.childNodes[0].getComputedTextLength();
 				}
 				if(e.pageX >= ppl && e.pageX <= bnl ) {
