@@ -909,9 +909,9 @@ $(document).ready( function() {
 			var leftOffset = bRect.left + window.scrollX, topOffset = bRect.top + window.scrollY;
 			if(e.pageX >= leftOffset && e.pageX <= (leftOffset + bRect.width) && e.pageY >= topOffset && e.pageY <= (topOffset + bRect.height)) { // console.log("We are within the X-Axis label now");
 				try {
-					var ppl = xaxisDom.childNodes[0].getBBox().x; var bnl = ppl + xaxisDom.childNodes[0].getComputedTextLength();
+					var ppl = xaxisDom.children[0].getBBox().x; var bnl = ppl + xaxisDom.children[0].getComputedTextLength();
 				} catch(e) {
-					var ppl = xaxisDom.childNodes[0].getBoundingClientRect().left + window.scrollX; var bnl = ppl + xaxisDom.childNodes[0].getComputedTextLength();
+					var ppl = xaxisDom.children[0].getBoundingClientRect().left + window.scrollX; var bnl = ppl + xaxisDom.children[0].getComputedTextLength();
 				}
 				if(e.pageX >= ppl && e.pageX <= bnl ) {
 					// Toggle between the various operators; note that this is a global operation for now and applies to all PV's
