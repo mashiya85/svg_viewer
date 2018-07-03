@@ -600,6 +600,7 @@ function process3DPlot(pvName, data) {
 		// Perform animation for each frame.
 		function range(len) { var ret = []; for(var i = 0; i < len; i++) { ret.push(i); } return ret; }
 		function spikeCurrentFrame() { var ret = []; for(var i = 0; i < totalFrames; i++) { ret.push((i == currentFrame) ? 4 : 1); } return ret; }
+        function getTimestampStrings() { var ret = []; for(var i = 0; i < viewerVars.pvData[pvName].secs.length; i++) { ret.push(moment(viewerVars.pvData[pvName].secs[i]).format("MMM/D/YYYY HH:mm:ss.SSS")); } return ret; }
 
 		var valueTrace = {
 				x: range(viewerVars.pvData[pvName].vals[currentFrame].length),
@@ -615,6 +616,7 @@ function process3DPlot(pvName, data) {
 				type: 'scatter',
 				xaxis: 'x2',
 				yaxis: 'y2',
+                hovertext: getTimestampStrings(),
 				mode: "markers",
 				marker: { size: 5 }
 		};
