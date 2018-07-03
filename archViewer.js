@@ -599,7 +599,7 @@ function process3DPlot(pvName, data) {
 	function frame() {
 		// Perform animation for each frame.
 		function range(len) { var ret = []; for(var i = 0; i < len; i++) { ret.push(i); } return ret; }
-		function spikeCurrentFrame() { var ret = []; for(var i = 0; i < totalFrames; i++) { ret.push((i == currentFrame) ? 4 : 0); } return ret; }
+		function spikeCurrentFrame() { var ret = []; for(var i = 0; i < totalFrames; i++) { ret.push((i == currentFrame) ? 4 : 1); } return ret; }
 
 		var valueTrace = {
 				x: range(viewerVars.pvData[pvName].vals[currentFrame].length),
@@ -616,7 +616,7 @@ function process3DPlot(pvName, data) {
 				xaxis: 'x2',
 				yaxis: 'y2',
 				mode: "markers",
-				marker: { size: 10 }
+				marker: { size: 5 }
 		};
 
 		if('layout' in myDiv) { // Plotly object already exists.
