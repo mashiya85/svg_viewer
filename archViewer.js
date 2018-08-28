@@ -367,6 +367,8 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 			default:
 				viewerVars.pvData[pvName].secs = data['data'].map(function(sample) { return new Date(sample['millis']); });
 			    viewerVars.pvData[pvName].vals = data['data'].map(function(sample) { return sample['val']; });
+                console.log("Add a fake point at " + moment(viewerVars.queryEnd).toDate());
+                viewerVars.pvData[pvName].secs.push(moment(viewerVars.queryEnd).toDate()); viewerVars.pvData[pvName].vals.push(viewerVars.pvData[pvName].vals.slice(-1)[0]);
 			    viewerVars.pvData[pvName].trace = {
 					x: viewerVars.pvData[pvName].secs,
 					y: viewerVars.pvData[pvName].vals,
