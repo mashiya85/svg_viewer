@@ -390,6 +390,7 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 		if(!('layout' in myDiv)) { // This means we are creating the plotly object for the first time...
 			var layout = {
 					title: 'EPICS Archiver Appliance Viewer',
+                    width: window.innerWidth,
 					height: window.innerHeight*0.95,
 					showlegend: true,
 					legend: {x: 0, y: 1},
