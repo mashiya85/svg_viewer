@@ -151,6 +151,15 @@ function getLayoutChangesForMultipleYAxes(layout) {
 	return layoutChanges;
 }
 
+function getEstimatedRawSamples() {
+    var maxSamples = 0;
+    for(i = 0; i < viewerVars.pvs.length; i++) {
+        pvName = viewerVars.pvs[i];
+        maxSamples = Math.max(maxSamples, viewerVars.pvData[pvName].vals.length*viewerVars.binSize);
+    }
+    return maxSamples;
+}
+
 
 // Enum for the various type of X axis changes; to provide a "smooth" panning experience, we treat that specially.
 // All other options are usually delete/replace traces.
@@ -921,8 +930,8 @@ $(document).ready( function() {
 				if(e.pageX >= ppl && e.pageX <= bnl ) {
 					// Toggle between the various operators; note that this is a global operation for now and applies to all PV's
 					var nextBinningOperator = viewerVars.binningOperatorsList[((viewerVars.binningOperatorsList.indexOf(viewerVars.currentBinningOperator)+1)%viewerVars.binningOperatorsList.length)];
-					if(nextBinningOperator == "raw" && ((viewerVars.end.getTime() - viewerVars.start.getTime()) > 2*24*60*60*1000)) {
-						// Skip switching into the raw operator if the duration of the plot is more than 2 days.
+					if(nextBinningOperator == "raw" && getEstimatedRawSamples() > 1000000) {
+						console.log("Skip switching into the raw operator as we estimate to have more than 1000000 samples for one of the PV's");
 						nextBinningOperator = viewerVars.binningOperatorsList[((viewerVars.binningOperatorsList.indexOf(nextBinningOperator)+1)%viewerVars.binningOperatorsList.length)];
 					}
 					viewerVars.currentBinningOperator = nextBinningOperator;
