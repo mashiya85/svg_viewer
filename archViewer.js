@@ -375,7 +375,7 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 					name: pvName,
 					type: 'scatter',
 					mode: "lines",
-					line: {shape: 'vh'},
+					line: {shape: 'hv'},
 					yaxis: viewerVars.pvData[pvName].axis
 			    };
 			    if (viewerVars.binSize > 0 && viewerVars.currentBinningOperator.startsWith('errorbar')) {
