@@ -16,7 +16,7 @@
 <script src="lib/bootstrap-3.3.7/js/bootstrap-datetimepicker.min.js"></script>
 
 <style type="text/css">
-#archViewer { 
+#archViewer {
 	width: 100%;
 	height: 100%;
 }
@@ -126,7 +126,7 @@ text.fixedBinSize tspan:nth-child(2) {
                     Enter a PV Name GLOB pattern
                 </h4>
             </div>
-            
+
             <!-- Modal Body -->
             <div class="modal-body">
                 <form class="form-horizontal" role="form">
@@ -143,10 +143,10 @@ text.fixedBinSize tspan:nth-child(2) {
                 <div id="pvNameSearchMatchingError"></div>
                 <ul class="list-group" id="pvNameSearchMatchingList">
                 </ul>
-            </div>            
+            </div>
              <div class="modal-footer">
      			<button type="button" class="btn btn-default" data-dismiss="modal">Add</button>
-   			</div>                
+   			</div>
         </div>
     </div>
     <script type="text/javascript">
@@ -178,7 +178,7 @@ text.fixedBinSize tspan:nth-child(2) {
                     Choose a bin size (in seconds):
                 </h4>
             </div>
-            
+
             <!-- Modal Body -->
             <div class="modal-body">
                 <form class="form-horizontal" role="form">
@@ -191,8 +191,8 @@ text.fixedBinSize tspan:nth-child(2) {
                 </form>
                 <div class="modal-footer">
         			<button type="button" class="btn btn-default" data-dismiss="modal">Done</button>
-      			</div>                
-            </div>            
+      			</div>
+            </div>
         </div>
     </div>
     <script type="text/javascript">
@@ -222,14 +222,14 @@ text.fixedBinSize tspan:nth-child(2) {
                     Data for plot:
                 </h4>
             </div>
-            
+
             <!-- Modal Body -->
             <div class="modal-body">
               	<div id="showDataTableDiv"></div>
-            </div>            
+            </div>
              <div class="modal-footer">
      			<button type="button" class="btn btn-default" data-dismiss="modal">Done</button>
-   			</div>                
+   			</div>
         </div>
     </div>
 </div>
@@ -246,7 +246,7 @@ text.fixedBinSize tspan:nth-child(2) {
                        <span class="sr-only">Close</span>
                 </button>
             </div>
-            
+
             <!-- Modal Body -->
             <div class="modal-body">
                 <form class="form-horizontal" role="form">
@@ -258,10 +258,43 @@ text.fixedBinSize tspan:nth-child(2) {
                 </form>
                 <div class="modal-footer">
         			<button type="button" class="btn btn-default" data-dismiss="modal">Done</button>
-      			</div>                
-            </div>            
+      			</div>
+            </div>
         </div>
     </div>
+</div>
+
+
+<!--  Comment for elog  -->
+<div id="elogModal" class="modal fade" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                       <span aria-hidden="true">&times;</span>
+                       <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    Post to the elog:
+                </h4>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <form class="form-horizontal" role="form">
+                  <div class="form-group"><textarea rows="5" class="form-control" id="elogComment" placeholder="Please add a comment for the eLog" ></textarea></div>
+                </form>
+                <div class="modal-footer">
+        			<button type="button" class="btn btn-default" data-dismiss="modal" id="elogPost">Post</button>
+      			</div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(function () {
+            $('#elogPost').on('click', postToELog);
+        });
+    </script>
 </div>
 
 

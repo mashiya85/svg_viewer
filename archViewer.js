@@ -40,6 +40,10 @@ viewerVars.plotType = viewerVars.plotTypeEnum.SCATTER_2D;
 viewerVars.currentlyAnimating3DPlot = false;
 // If so, the id of the timer that is driving the animation
 viewerVars.timerIndexFor3DAnimation = -1;
+// Icons for various buttons are store here.
+viewerVars.icons = {}
+// We take a snapshot of the gd before showing the comment modal. This is stored here
+viewerVars.currentSnapshot = null;
 
 
 
@@ -47,6 +51,10 @@ viewerVars.timerIndexFor3DAnimation = -1;
 // This should default to a path relative location that works from the appliance UI.
 // To develop/debug, override this to a absolute URL of the server with the data you are going to use for debugging/developing.
 viewerVars.serverURL = "../../data";
+
+// We support posting to an elog; by default we post to a "postToElog" endpoint relative to the viewer.
+// The endpoint gets a multipart mime document with "comment", "link" and "snapshot" elements.
+viewerVars.postToElogURL = "../../../postToElog";
 
 // Google finance like list of time windows..
 viewerVars.selectorOptions = {
@@ -483,43 +491,9 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 
 // The modebar is specified in the plotConfig. Use icons from font-awesome to create our modebar buttons.
 function generatePlotConfig() {
-	// These icons are from font-awesome; use the path and the horiz-adv-x for the width and play around with the ascent and descent.
-	var calendarIcon = {
-        'width': 1664,
-        'path': 'M128 -128h288v288h-288v-288zM480 -128h320v288h-320v-288zM128 224h288v320h-288v-320zM480 224h320v320h-320v-320zM128 608h288v288h-288v-288zM864 -128h320v288h-320v-288zM480 608h320v288h-320v-288zM1248 -128h288v288h-288v-288zM864 224h320v320h-320v-320z M512 1088v288q0 13 -9.5 22.5t-22.5 9.5h-64q-13 0 -22.5 -9.5t-9.5 -22.5v-288q0 -13 9.5 -22.5t22.5 -9.5h64q13 0 22.5 9.5t9.5 22.5zM1248 224h288v320h-288v-320zM864 608h320v288h-320v-288zM1248 608h288v288h-288v-288zM1280 1088v288q0 13 -9.5 22.5t-22.5 9.5h-64 q-13 0 -22.5 -9.5t-9.5 -22.5v-288q0 -13 9.5 -22.5t22.5 -9.5h64q13 0 22.5 9.5t9.5 22.5zM1664 1152v-1280q0 -52 -38 -90t-90 -38h-1408q-52 0 -90 38t-38 90v1280q0 52 38 90t90 38h128v96q0 66 47 113t113 47h64q66 0 113 -47t47 -113v-96h384v96q0 66 47 113t113 47 h64q66 0 113 -47t47 -113v-96h128q52 0 90 -38t38 -90z',
-        'ascent': 1450,
-        'descent': -200
-    };
-
-	var searchIcon = {
-	        'width': 1664,
-	        'path': 'M1152 704q0 185 -131.5 316.5t-316.5 131.5t-316.5 -131.5t-131.5 -316.5t131.5 -316.5t316.5 -131.5t316.5 131.5t131.5 316.5zM1664 -128q0 -52 -38 -90t-90 -38q-54 0 -90 38l-343 342q-179 -124 -399 -124q-143 0 -273.5 55.5t-225 150t-150 225t-55.5 273.5 t55.5 273.5t150 225t225 150t273.5 55.5t273.5 -55.5t225 -150t150 -225t55.5 -273.5q0 -220 -124 -399l343 -343q37 -37 37 -90z',
-	        'ascent': 1450,
-	        'descent': -200
-	    };
-	var downloadIcon = {
-	        'width': 1664,
-	        'path': 'M1280 192q0 26 -19 45t-45 19t-45 -19t-19 -45t19 -45t45 -19t45 19t19 45zM1536 192q0 26 -19 45t-45 19t-45 -19t-19 -45t19 -45t45 -19t45 19t19 45zM1664 416v-320q0 -40 -28 -68t-68 -28h-1472q-40 0 -68 28t-28 68v320q0 40 28 68t68 28h465l135 -136 q58 -56 136 -56t136 56l136 136h464q40 0 68 -28t28 -68zM1339 985q17 -41 -14 -70l-448 -448q-18 -19 -45 -19t-45 19l-448 448q-31 29 -14 70q17 39 59 39h256v448q0 26 19 45t45 19h256q26 0 45 -19t19 -45v-448h256q42 0 59 -39z',
-	        'ascent': 1450,
-	        'descent': -200
-	};
-	var linkIcon = {
-	        'width': 1664,
-	        'path': 'M1456 320q0 40 -28 68l-208 208q-28 28 -68 28q-42 0 -72 -32q3 -3 19 -18.5t21.5 -21.5t15 -19t13 -25.5t3.5 -27.5q0 -40 -28 -68t-68 -28q-15 0 -27.5 3.5t-25.5 13t-19 15t-21.5 21.5t-18.5 19q-33 -31 -33 -73q0 -40 28 -68l206 -207q27 -27 68 -27q40 0 68 26 l147 146q28 28 28 67zM753 1025q0 40 -28 68l-206 207q-28 28 -68 28q-39 0 -68 -27l-147 -146q-28 -28 -28 -67q0 -40 28 -68l208 -208q27 -27 68 -27q42 0 72 31q-3 3 -19 18.5t-21.5 21.5t-15 19t-13 25.5t-3.5 27.5q0 40 28 68t68 28q15 0 27.5 -3.5t25.5 -13t19 -15 t21.5 -21.5t18.5 -19q33 31 33 73zM1648 320q0 -120 -85 -203l-147 -146q-83 -83 -203 -83q-121 0 -204 85l-206 207q-83 83 -83 203q0 123 88 209l-88 88q-86 -88 -208 -88q-120 0 -204 84l-208 208q-84 84 -84 204t85 203l147 146q83 83 203 83q121 0 204 -85l206 -207 q83 -83 83 -203q0 -123 -88 -209l88 -88q86 88 208 88q120 0 204 -84l208 -208q84 -84 84 -204z',
-	        'ascent': 1450,
-	        'descent': -200
-	};
-
-	var helpIcon = {
-	        'width': 1664,
-	        'path': 'M880 336v-160q0 -14 -9 -23t-23 -9h-160q-14 0 -23 9t-9 23v160q0 14 9 23t23 9h160q14 0 23 -9t9 -23zM1136 832q0 -50 -15 -90t-45.5 -69t-52 -44t-59.5 -36q-32 -18 -46.5 -28t-26 -24t-11.5 -29v-32q0 -14 -9 -23t-23 -9h-160q-14 0 -23 9t-9 23v68q0 35 10.5 64.5 t24 47.5t39 35.5t41 25.5t44.5 21q53 25 75 43t22 49q0 42 -43.5 71.5t-95.5 29.5q-56 0 -95 -27q-29 -20 -80 -83q-9 -12 -25 -12q-11 0 -19 6l-108 82q-10 7 -12 20t5 23q122 192 349 192q129 0 238.5 -89.5t109.5 -214.5zM768 1280q-130 0 -248.5 -51t-204 -136.5 t-136.5 -204t-51 -248.5t51 -248.5t136.5 -204t204 -136.5t248.5 -51t248.5 51t204 136.5t136.5 204t51 248.5t-51 248.5t-136.5 204t-204 136.5t-248.5 51zM1536 640q0 -209 -103 -385.5t-279.5 -279.5t-385.5 -103t-385.5 103t-279.5 279.5t-103 385.5t103 385.5 t279.5 279.5t385.5 103t385.5 -103t279.5 -279.5t103 -385.5z',
-	        'ascent': 1450,
-	        'descent': -200
-	};
-
 	var newModeBarButtons = [];
 	newModeBarButtons.push({ name: 'Start/End',
-		icon: calendarIcon,
+		icon: viewerVars.icons['regular/calendar-alt'],
 		click: function() {
 			$("#dialog_startTime").val(moment(viewerVars.start).format("YYYY/MM/DD HH:mm:ss"));
 			$("#dialog_endTime").val(moment(viewerVars.end).format("YYYY/MM/DD HH:mm:ss"));
@@ -527,26 +501,30 @@ function generatePlotConfig() {
 		}});
 	if(viewerVars.plotType == viewerVars.plotTypeEnum.SCATTER_2D) {
 		newModeBarButtons.push({ name: 'Add PVs',
-			icon: searchIcon,
+			icon: viewerVars.icons['solid/search'],
 			click: function() {
 				$('#searchAndAddPVsModal').modal('show');
 			}
 		});
 	}
 	newModeBarButtons.push({ name: 'Show Data',
-		icon: Plotly.Icons.disk,
+		icon: viewerVars.icons['solid/save'],
 		click: showChartDataAsText
 	});
 	newModeBarButtons.push({ name: 'Export as CSV',
-		icon: downloadIcon,
+		icon: viewerVars.icons['solid/download'],
 		click: exportToCSV
 	});
 	newModeBarButtons.push({ name: 'Link to current',
-		icon: linkIcon,
-		click: generateLinkToCurrentView
+		icon: viewerVars.icons['solid/link'],
+		click: showLinkToCurrentView
+	});
+    newModeBarButtons.push({ name: 'Post to elog',
+		icon: viewerVars.icons['solid/share'],
+		click: showElogModal
 	});
 	newModeBarButtons.push({ name: 'Help',
-		icon: helpIcon,
+		icon: viewerVars.icons['regular/question-circle'],
 		click: showHelp
 	});
 
@@ -864,9 +842,8 @@ function exportToCSV() {
 	myWindow = window.open("data:text/csv;charset=utf-8," + encodeURIComponent(csvContent));
 }
 
-// URL to what we are currently showing...
-function generateLinkToCurrentView() {
-	var linkToCurrentView = window.location.href.split('?')[0] + '?';
+function getLinkToCurrentView() {
+    var linkToCurrentView = window.location.href.split('?')[0] + '?';
 	var first = true;
 	for(var i in viewerVars.pvs) {
 		var pvName = viewerVars.pvs[i];
@@ -875,6 +852,12 @@ function generateLinkToCurrentView() {
 	}
 	linkToCurrentView += "&from=" + viewerVars.start.toISOString();
 	linkToCurrentView += "&to="   + viewerVars.end.toISOString();
+    return linkToCurrentView;
+}
+
+// URL to what we are currently showing...
+function showLinkToCurrentView() {
+    var linkToCurrentView = getLinkToCurrentView();
 	console.log(linkToCurrentView);
 	$("#alertInfoText").text(linkToCurrentView);
 	$('#alertModal').modal('show');
@@ -895,14 +878,61 @@ function drop(ev) {
 	addTraceForNewPVs([pvName]);
 }
 
-$(document).ready( function() {
-	parseURLParameters();
+function showElogModal(gd) {
+    if(gd._snapshotInProgress) { alert('Already posting to the elog'); return; }
+    function makeblob(dataURL) { // from https://stackoverflow.com/questions/34047648/how-to-post-an-image-in-base64-encoding-via-ajax/34064793
+        var BASE64_MARKER = ';base64,';
+        if (dataURL.indexOf(BASE64_MARKER) == -1) {
+            var parts = dataURL.split(','), contentType = parts[0].split(':')[1], raw = decodeURIComponent(parts[1]);
+            return new Blob([raw], { type: contentType });
+        }
+        var parts = dataURL.split(BASE64_MARKER), contentType = parts[0].split(':')[1], raw = window.atob(parts[1]), rawLength = raw.length, uInt8Array = new Uint8Array(rawLength);
+        for (var i = 0; i < rawLength; ++i) { uInt8Array[i] = raw.charCodeAt(i); }
+        return new Blob([uInt8Array], { type: contentType });
+    }
+    gd._snapshotInProgress = true;
+    var promise = Plotly.toImage(gd, {'format': 'png'})
+      .then(function(result) {
+          gd._snapshotInProgress = false;
+          viewerVars.currentSnapshot = makeblob(result);
+          console.log("Done generating snapshot and storing in viewervars");
+          $("#elogComment").val("");
+          $('#elogModal').modal('show');
+      })
+      .catch(function() {
+          gd._snapshotInProgress = false;
+          viewerVars.currentSnapshot = null;
+          alert("There was a problem creating a snapshot");
+      });}
 
-	if(viewerVars.pvs.length == 0) {
-		$('#searchAndAddPVsModal').modal('show');
-	} else {
-		fetchDataFromServerAndPlot("NewPlot");
-	}
+function postToELog() {
+    if(viewerVars.currentSnapshot == null) { return; }
+    var data = new FormData();
+    data.append("snapshot", viewerVars.currentSnapshot);
+    data.append("comment", $("#elogComment").val());
+    data.append("link", getLinkToCurrentView());
+    $.ajax({
+        url: viewerVars.postToElogURL,
+        cache: false, contentType: false, processData: false,
+        method: 'POST',
+        data: data
+       })
+   .done(function(data) { console.log("Successfully posted to the elog"); })
+   .fail(function(jqXHR, textStatus, errorThrown) { alert("Error posting to the elog " + jqXHR.statusText); console.log(jqXHR);})
+   .always(function(){ viewerVars.currentSnapshot = null; })
+}
+
+
+$(document).ready( function() {
+    $.getJSON("lib/fapaths.json").done(function(icons){
+        viewerVars.icons = icons;
+        parseURLParameters();
+    	if(viewerVars.pvs.length == 0) {
+    		$('#searchAndAddPVsModal').modal('show');
+    	} else {
+    		fetchDataFromServerAndPlot("NewPlot");
+    	}
+    })
 
 	// There is a big SVG drag area over much of the plot; so we do this to determine if the user has clicked on some plot element.
 	$(document).click(function(e) {
