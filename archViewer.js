@@ -874,8 +874,10 @@ function allowDrop(ev) {
 function drop(ev) {
     ev.preventDefault();
     var pvName = ev.dataTransfer.getData("text").trim();
-    console.log("Dropping in pv " + pvName);
-	addTraceForNewPVs([pvName]);
+    if(typeof pvName !== 'undefined' && pvName && pvName.length > 2) {
+        console.log("Dropping in pv " + pvName);
+    	addTraceForNewPVs([pvName]);
+    }
 }
 
 function showElogModal(gd) {
@@ -933,6 +935,15 @@ $(document).ready( function() {
     		fetchDataFromServerAndPlot("NewPlot");
     	}
     })
+
+    $(document).on("paste", function(ev) {
+        var pvName = ev.originalEvent.clipboardData.getData('text/plain').trim();
+        if(typeof pvName !== 'undefined' && pvName && pvName.length > 2) {
+            console.log("Pasting PV from clipboard event " + pvName);
+            addTraceForNewPVs([ev.originalEvent.clipboardData.getData('text/plain').trim()]);
+        }
+    });
+
 
 	// There is a big SVG drag area over much of the plot; so we do this to determine if the user has clicked on some plot element.
 	$(document).click(function(e) {
