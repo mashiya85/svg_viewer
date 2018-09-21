@@ -23,6 +23,8 @@ viewerVars.y_short_2_long = {'y1' : 'yaxis', 'y2' : 'yaxis2', 'y3' : 'yaxis3'};
 viewerVars.y_short_2_axisclass = {'y1' : 'ytitle', 'y2' : 'y2title', 'y3' : 'y3title'};
 // The first two y axes get added to the left&right; later ones affect the xaxis range. Maintain these layout changes here.
 viewerVars.yaxis_layout_changes = {'y3' : {'position' : 1.00, 'domain': [0, 0.94]}}
+// User specifications for the y axes; this is a dict mapping EGU's (not PV's) to yaxes specifications.
+viewerVars.egu_yaxis_specs = {}
 // Bin size being used for non-raw trace...
 viewerVars.binSize = 0;
 // Has the user fixed the bin size
@@ -100,9 +102,10 @@ function parseURLParameters() {
 				viewerVars.start = new Date(val); break;
 			case "to":
 				viewerVars.end = new Date(val); break;
+            case "yaxes":
+				viewerVars.egu_yaxis_specs = $.parseJSON(decodeURIComponent(val)); break;
 			default:
-				console.log("Unsupported parameter; adding it to the viewerVars anyways" + name);
-			viewerVars.name = val;
+				console.log("Unsupported parameter " + name); break;
 			}
 		}
 	}
@@ -143,7 +146,7 @@ function getLayoutChangesForMultipleYAxes(layout) {
 			break; // Do nothing for the first y axis...
 		default:
 			if(!(viewerVars.y_short_2_long[axs] in layout) && !(viewerVars.y_short_2_long[axs] in layoutChanges)) {
-				layoutChanges[viewerVars.y_short_2_long[axs]] = { title: viewerVars.axis2egu[axs], overlaying: 'y', side: 'right', autorange: true};
+				layoutChanges[viewerVars.y_short_2_long[axs]] = _.assign({ title: viewerVars.axis2egu[axs], overlaying: 'y', side: 'right'}, getYAxisSpecification(pvName));
 				if(axs in viewerVars.yaxis_layout_changes) {
 					layoutChanges[viewerVars.y_short_2_long[axs]].position = viewerVars.yaxis_layout_changes[axs].position;
 					if(!('xaxis' in layoutChanges)) { layoutChanges.xaxis = {}; }
@@ -157,6 +160,12 @@ function getLayoutChangesForMultipleYAxes(layout) {
 		}
 	}
 	return layoutChanges;
+}
+
+// Get the range specifier for the y axes
+function getYAxisSpecification(pvName) {
+    var egu = viewerVars.pvData[pvName].egu;
+    return _.get(viewerVars.egu_yaxis_specs, egu, { autorange: true })
 }
 
 function getEstimatedRawSamples() {
@@ -416,7 +425,7 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 						title: getXAxisTitle(),
 						titlefont: {color: '#7f7f7f', }
 					},
-					yaxis: {title: viewerVars.axis2egu['y1'], autorange: true, exponentformat: 'e'}
+					yaxis: _.assign({title: viewerVars.axis2egu['y1'], exponentformat: 'e'}, getYAxisSpecification(viewerVars.pvs[0]))
 			};
 			var layoutChanges = getLayoutChangesForMultipleYAxes(layout);
 			$.extend(true, layout, layoutChanges);
@@ -522,6 +531,10 @@ function generatePlotConfig() {
     newModeBarButtons.push({ name: 'Post to elog',
 		icon: viewerVars.icons['solid/share'],
 		click: showElogModal
+	});
+    newModeBarButtons.push({ name: 'Y Axes ranges',
+		icon: viewerVars.icons['solid/text-height'],
+		click: showYAxesRangeModal
 	});
 	newModeBarButtons.push({ name: 'Help',
 		icon: viewerVars.icons['regular/question-circle'],
@@ -852,6 +865,7 @@ function getLinkToCurrentView() {
 	}
 	linkToCurrentView += "&from=" + viewerVars.start.toISOString();
 	linkToCurrentView += "&to="   + viewerVars.end.toISOString();
+    if(!_.isEmpty(viewerVars.egu_yaxis_specs)) {  linkToCurrentView += "&yaxes=" + encodeURIComponent(JSON.stringify(viewerVars.egu_yaxis_specs)); }
     return linkToCurrentView;
 }
 
@@ -924,6 +938,24 @@ function postToELog() {
    .always(function(){ viewerVars.currentSnapshot = null; })
 }
 
+function showYAxesRangeModal() {
+    var axtmpl = `{{#.}}<tr><td><label>{{egu}}</label></td><td><input type="text" class="form-control" name="{{egu}}_min" value="{{min}}"/></td><td><input type="text" class="form-control" name="{{egu}}_max" value="{{max}}"/></td></tr>{{/.}}`;
+    Mustache.parse(axtmpl);
+    var yranges = _.map(viewerVars.egu2axis, function(v, k) { return { "egu": k, "min": _.get(viewerVars.egu_yaxis_specs, k + ".range", [-10, 10])[0], "max": _.get(viewerVars.egu_yaxis_specs, k + ".range", [-10, 10])[1] } })
+    $("#yAxesModal").find("table tbody").empty().append(Mustache.render(axtmpl, yranges));
+    $('#yAxesModal').modal('show');
+}
+
+function applyYAxesRanges() {
+    var newlayout = myDiv.layout;
+    _.each(viewerVars.egu2axis, function(v, k) {
+        var range = [parseFloat($("#yAxesModal").find("table tbody").find("input[name="+k+"_min]").val()), parseFloat($("#yAxesModal").find("table tbody").find("input[name="+k+"_max]").val())];
+        _.set(viewerVars.egu_yaxis_specs, k + '.range', range);
+        _.set(newlayout, viewerVars.y_short_2_long[v] + ".autorange", false);
+        _.set(newlayout, viewerVars.y_short_2_long[v] + ".range", range);
+    });
+    fetchDataFromServerAndPlot("ReplaceTraces");
+}
 
 $(document).ready( function() {
     $.getJSON("lib/fapaths.json").done(function(icons){

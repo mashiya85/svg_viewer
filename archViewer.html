@@ -9,11 +9,13 @@
 <link href="lib/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet">
 <link href="lib/bootstrap-3.3.7/css/bootstrap-datetimepicker.css" rel="stylesheet">
 
+<script src="lib/lodash-4.17.10.min.js"></script>
 <script src="lib/plotly-1.35.2.min.js"></script>
 <script src="lib/jquery-3.1.0.min.js"></script>
 <script src="lib/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 <script src="lib/bootstrap-3.3.7/js/moment.js"></script>
 <script src="lib/bootstrap-3.3.7/js/bootstrap-datetimepicker.min.js"></script>
+<script src="lib/mustache-3.0.0.min.js"></script>
 
 <style type="text/css">
 #archViewer {
@@ -297,6 +299,42 @@ text.fixedBinSize tspan:nth-child(2) {
     </script>
 </div>
 
+<!--  Ranges for the Y-Axes  -->
+<div id="yAxesModal" class="modal fade" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                       <span aria-hidden="true">&times;</span>
+                       <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    Specify ranges for the Y Axes based on EGU's:
+                </h4>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <form class="form-horizontal" role="form">
+                    <table class="table table-striped table-bordered">
+                        <thead><tr><th>EGU</th><th>Min</th><th>Max</th></tr></thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </form>
+                <div class="modal-footer">
+        			<button type="button" class="btn btn-default" data-dismiss="modal" id="yAxesPost">Set Ranges</button>
+      			</div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(function () {
+            $('#yAxesPost').on('click', applyYAxesRanges);
+        });
+    </script>
+</div>
 
 <script type="text/javascript" src="archViewer.js"></script>
 
