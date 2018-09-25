@@ -511,9 +511,7 @@ function generatePlotConfig() {
 	if(viewerVars.plotType == viewerVars.plotTypeEnum.SCATTER_2D) {
 		newModeBarButtons.push({ name: 'Add PVs',
 			icon: viewerVars.icons['solid/search'],
-			click: function() {
-				$('#searchAndAddPVsModal').modal('show');
-			}
+			click: function() { $('#searchAndAddPVsModal').modal('show'); }
 		});
 	}
 	newModeBarButtons.push({ name: 'Show Data',
@@ -535,6 +533,10 @@ function generatePlotConfig() {
     newModeBarButtons.push({ name: 'Y Axes ranges',
 		icon: viewerVars.icons['solid/text-height'],
 		click: showYAxesRangeModal
+	});
+    newModeBarButtons.push({ name: 'Remove PVs',
+		icon: viewerVars.icons['solid/trash-alt'],
+		click: showRemovePVsModal
 	});
 	newModeBarButtons.push({ name: 'Help',
 		icon: viewerVars.icons['regular/question-circle'],
@@ -955,6 +957,30 @@ function applyYAxesRanges() {
         _.set(newlayout, viewerVars.y_short_2_long[v] + ".range", range);
     });
     fetchDataFromServerAndPlot("ReplaceTraces");
+}
+
+function showRemovePVsModal() {
+    if(viewerVars.pvs.length <= 0) { return; }
+    var rmtmpl = `{{#pvNames}}<div class="checkbox"><label><input type="checkbox" value="{{.}}">{{.}}</label></div>{{/pvNames}}`;
+    Mustache.parse(rmtmpl);
+    $("#removePVsModal").find(".checkboxlist").empty().append(Mustache.render(rmtmpl, { pvNames: viewerVars.pvs }));
+    $('#removePVsModal').modal('show');
+}
+
+function removePVFromPlot(pvName) {
+    console.log("Removing " + pvName);
+    var index = _.indexOf(viewerVars.pvs, pvName);
+    if (index >= 0) {
+        viewerVars.pvs.splice(index, 1);
+        delete viewerVars.pvData[pvName];
+        Plotly.deleteTraces(myDiv, index);
+    }
+}
+
+function removeSelectedPVs() {
+    $("#removePVsModal").find(".checkboxlist").find("input:checked").each(function(){
+        removePVFromPlot($(this).val());
+    });
 }
 
 $(document).ready( function() {

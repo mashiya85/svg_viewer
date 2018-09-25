@@ -336,6 +336,39 @@ text.fixedBinSize tspan:nth-child(2) {
     </script>
 </div>
 
+<!--  remove PVs  -->
+<div id="removePVsModal" class="modal fade" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                       <span aria-hidden="true">&times;</span>
+                       <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    Remove selected PVs
+                </h4>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <form class="form-horizontal" role="form">
+                    <div class="checkboxlist">
+                    </div>
+                </form>
+            </div>
+             <div class="modal-footer">
+     			<button type="button" class="btn btn-default" data-dismiss="modal" id="removePVsBtn">Remove</button>
+   			</div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(function () {
+            $('#removePVsBtn').on('click', removeSelectedPVs);
+        });
+    </script>
+</div>
+
 <script type="text/javascript" src="archViewer.js"></script>
 
 </body>
