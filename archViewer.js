@@ -875,8 +875,8 @@ function getLinkToCurrentView() {
 function showLinkToCurrentView() {
     var linkToCurrentView = getLinkToCurrentView();
 	console.log(linkToCurrentView);
-	$("#alertInfoText").text(linkToCurrentView);
-	$('#alertModal').modal('show');
+	$("#linkText").text(linkToCurrentView);
+	$('#linkModal').modal('show');
 }
 
 function showHelp() {
