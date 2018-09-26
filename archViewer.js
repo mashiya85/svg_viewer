@@ -943,7 +943,11 @@ function postToELog() {
 function showYAxesRangeModal() {
     var axtmpl = `{{#.}}<tr><td><label>{{egu}}</label></td><td><input type="text" class="form-control" name="{{egu}}_min" value="{{min}}"/></td><td><input type="text" class="form-control" name="{{egu}}_max" value="{{max}}"/></td></tr>{{/.}}`;
     Mustache.parse(axtmpl);
-    var yranges = _.map(viewerVars.egu2axis, function(v, k) { return { "egu": k, "min": _.get(viewerVars.egu_yaxis_specs, k + ".range", [-10, 10])[0], "max": _.get(viewerVars.egu_yaxis_specs, k + ".range", [-10, 10])[1] } })
+    var yranges = _.map(viewerVars.egu2axis, function(v, k) { return {
+        "egu": k,
+        "min": _.get(viewerVars.egu_yaxis_specs, k + ".range", _.get(myDiv._fullLayout, viewerVars.y_short_2_long[v] + '.range[0]', -10)),
+        "max": _.get(viewerVars.egu_yaxis_specs, k + ".range", _.get(myDiv._fullLayout, viewerVars.y_short_2_long[v] + '.range[1]',  10))
+    }})
     $("#yAxesModal").find("table tbody").empty().append(Mustache.render(axtmpl, yranges));
     $('#yAxesModal').modal('show');
 }
