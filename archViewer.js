@@ -80,7 +80,12 @@ viewerVars.selectorOptions = {
 		          ]
 };
 
+viewerVars.relativeDateRegex = /^([-+]{0,1})(\d+)([smhdwMQy]{1})$/; // Get these from moment.js Manipulate shorthand.
 
+function parseRelativeDate(relDate) {
+    var parts = viewerVars.relativeDateRegex.exec(relDate);
+    return (parts[1] != "-") ? moment().add(parseInt(parts[2]), parts[3]).toDate() : moment().subtract(parseInt(parts[2]), parts[3]).toDate();
+}
 
 // You can pass in parameters to the viewer.
 // You can use pass in any number of pvs using the pv argument, for example, pv=VPIO:IN20:111:VRAW&pv=XCOR:LI21:101:BDES etc.
@@ -99,17 +104,21 @@ function parseURLParameters() {
 			case "pv":
 				viewerVars.pvs.push(val); viewerVars.pvData[val] = {}; break;
 			case "from":
-				viewerVars.start = new Date(val); break;
+                viewerVars.start = viewerVars.relativeDateRegex.test(val) ? parseRelativeDate(val) : new Date(val); break
 			case "to":
-				viewerVars.end = new Date(val); break;
+                viewerVars.end = viewerVars.relativeDateRegex.test(val) ? parseRelativeDate(val) : new Date(val); break
             case "yaxes":
 				viewerVars.egu_yaxis_specs = $.parseJSON(decodeURIComponent(val)); break;
+            case "binSize":
+                viewerVars.binSize = parseInt(val);
+                viewerVars.userFixedBinSize = true;
 			default:
 				console.log("Unsupported parameter " + name); break;
 			}
 		}
 	}
 	// QueryStart and QueryEnd are what we actually send to the server....
+    determineBinSize();
 	viewerVars.queryStart = viewerVars.start;
 	viewerVars.queryEnd = viewerVars.end;
 }
@@ -867,6 +876,7 @@ function getLinkToCurrentView() {
 	}
 	linkToCurrentView += "&from=" + viewerVars.start.toISOString();
 	linkToCurrentView += "&to="   + viewerVars.end.toISOString();
+    if(viewerVars.userFixedBinSize) { linkToCurrentView += "&binSize="   + viewerVars.binSize; }
     if(!_.isEmpty(viewerVars.egu_yaxis_specs)) {  linkToCurrentView += "&yaxes=" + encodeURIComponent(JSON.stringify(viewerVars.egu_yaxis_specs)); }
     return linkToCurrentView;
 }
