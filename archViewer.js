@@ -686,11 +686,10 @@ function updateXAxisTitle() {
 function addToolTipsToTraceLegends() {
 	$("g.legend g.traces").each(function() {
 		var pvName = $( this ).children('.legendtext').attr('data-unformatted');
-		if('DESC' in viewerVars.pvData[pvName]) {
-			var ttip = document.createElementNS("http://www.w3.org/2000/svg", 'title');
-			ttip.appendChild(document.createTextNode(viewerVars.pvData[pvName]['DESC']));
-			$( this )[0].appendChild(ttip);
-		}
+        var ttipText = _.get(viewerVars.pvData[pvName], 'DESC', '') + "  -  (" + _.get(viewerVars.pvData[pvName], 'egu', 'N/A') + ")";
+		var ttip = document.createElementNS("http://www.w3.org/2000/svg", 'title');
+		ttip.appendChild(document.createTextNode(ttipText));
+		$( this )[0].appendChild(ttip);
 	});
 }
 
