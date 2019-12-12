@@ -747,34 +747,33 @@ function startAndEndTimeSelected() {
 // User typed a pattern, we search for PV's matching this pattern.
 function searchForPVsMatchingPattern() {
 	var pattern = $("#pvNamePattern").val();
-	var globp = /[\*\?]/;
-	if(!globp.test(pattern)) {
-		$('#searchAndAddPVsModal').modal('hide');
-		console.log(pattern + " is not a glob pattern");
-		addTraceForNewPVs([pattern]);
-		return;
-	}
-	if(pattern) {
-		console.log("Search and add PVs for pattern " + pattern);
-		var list = $("#pvNameSearchMatchingList");
-		list.empty();
-		$("#pvNameSearchMatchingError").empty();
-		$.getJSON( viewerVars.serverURL + "/../bpl/getMatchingPVs?limit=10000&pv=" + pattern, function(matchingPVs){
-			if(matchingPVs.length > 0) {
-				matchingPVs.forEach(function(matchingPV) { list.append('<li class="list-group-item">' + matchingPV + '</li>') });
-				$("#pvNameSearchMatchingList li").click(function() { $(this).toggleClass('list-group-item-info'); });
-			} else {
-				$("#pvNameSearchMatchingError").html("No PV names matched your search. Search using GLOB patterns, for example, QUAD:*:BDES");
-			}
-		});
-	}
+	console.log("Search and add PVs for pattern " + pattern);
+	var list = $("#pvNameSearchMatchingList");
+	list.empty();
+	$("#pvNameSearchMatchingError").empty();
+	$.getJSON( viewerVars.serverURL + "/../bpl/getMatchingPVs?limit=10000&pv=" + pattern, function(matchingPVs){
+		if(matchingPVs.length > 1) {
+			matchingPVs.forEach(function(matchingPV) { list.append('<li class="list-group-item">' + matchingPV + '</li>') });
+			$("#pvNameSearchMatchingList li").click(function() { $(this).toggleClass('list-group-item-info'); });
+		} else if(matchingPVs.length == 1) {
+            $('#searchAndAddPVsModal').modal('hide');
+            addTraceForNewPVs(matchingPVs);
+            return;
+        } else {
+			$("#pvNameSearchMatchingError").html("No PV names matched your search. Search using GLOB patterns, for example, QUAD:*:BDES");
+		}
+	});
 }
 
 function addSelectedSearchPVs(e) {
 	var selectedPVs = [];
 	$("#pvNameSearchMatchingList li.list-group-item-info").each(function(index) { selectedPVs.push($(this).text())});
-	if(selectedPVs.length > 0) { addTraceForNewPVs(selectedPVs); }
-	$("#pvNameSearchMatchingList").empty();
+	if(selectedPVs.length > 0) {
+        $('#searchAndAddPVsModal').modal('hide');
+        addTraceForNewPVs(selectedPVs);
+        return true;
+    }
+    return false;
 }
 
 function fixBinSize() {
