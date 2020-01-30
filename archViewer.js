@@ -292,10 +292,9 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 	if(viewerVars.pvs.length == 0) { return; }
 
 	var pvsToFetchData = (xAxisChangeType == "AddNewTrace") ? newTracePVNames : viewerVars.pvs;
-	var pvDataPromises = new Array(pvsToFetchData.length), datas = new Array(pvsToFetchData.length);
-	for(var i in pvsToFetchData) {
+	var pvDataPromises = _.times(pvsToFetchData.length, function() { return new $.Deferred()}), datas = new Array(pvsToFetchData.length);
+	_.each(pvsToFetchData, function(pvName, i) {
 		var queryString = "";
-		pvName = pvsToFetchData[i];
 		if(viewerVars.binSize > 0) {
 			if (viewerVars.currentBinningOperator == "raw") {
 				queryString = "pv="  + pvName;
@@ -316,28 +315,18 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 
 		var pvDataUrl = viewerVars.serverURL + "/getData.qw?" + queryString + startEndQs;
 		console.log(pvDataUrl);
-		pvDataPromises[i] = $.getJSON(pvDataUrl);
-	}
+		$.getJSON(pvDataUrl).done(function(d0){datas[i] = d0; pvDataPromises[i].resolve(true)}).fail(function(jqXHR, textStatus, errorThrown){console.log("Server side failure getting data for " + pvName + "\n" + jqXHR.responseText); datas[i] = {}; pvDataPromises[i].resolve(false)});
+	})
 
 	$.when.apply($, pvDataPromises).done(function () {
 		// The done is called with the results of the .getJSON's for all the submitted URLs. Use the Javascript arguments object to unpack the data.
-		for(var i = 0, l = arguments.length; i < l; i++) {
-			if (pvsToFetchData.length == 1) {
-				if(arguments[1] != "success") {
-					console.log("Failure getting data for one of the PV's at " + i);
-					console.log(arguments);
-					continue;
-				}
-				data = arguments[0][0];
-			} else {
-				if(arguments[i][1] != "success") {
-					console.log("Failure getting data for one of the PV's at " + i);
-					console.log(arguments);
-					continue;
-				}
-				data = arguments[i][0][0];
+		for(let i = 0, l = arguments.length; i < l; i++) {
+            if(!arguments[i]) {
+                new Noty({type: "error", timeout: 5000, text: "Failure getting data for PV " + pvsToFetchData[i]}).show();
+				continue;
 			}
-			if(typeof data == "undefined" || !('meta' in data)) { console.log("Empty dataset for PV at" + i); continue}
+			let data = datas[i][0];
+			if(_.isNil(data) || !_.includes(_.keys(data), "meta")) { console.log("Empty dataset for PV at" + i); console.log(data); continue}
 			// arguments[i] is the result of the .getJSON; the data is in [0]. The server sends this as an array hence the additional [0]
 			var pvName = data['meta'].name;
 			console.log("Plotting " + pvName);
@@ -359,7 +348,7 @@ function fetchDataFromServerAndPlot(xAxisChangeType, newTracePVNames) {
 					}
 				}
 				if(!('axis' in viewerVars.pvData[pvName])) {
-					alert("Cannot map " + pvName + " to one of the available axes. Not displaying this PV.");
+                    new Noty({type: "error", timeout: 5000, text: "Cannot map " + pvName + " to one of the available axes. Not displaying this PV."}).show();
 					continue;
 				}
 			}
