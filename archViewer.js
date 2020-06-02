@@ -872,7 +872,7 @@ function getLinkToCurrentView() {
 function showLinkToCurrentView() {
     var linkToCurrentView = getLinkToCurrentView();
 	console.log(linkToCurrentView);
-	$("#linkText").text(linkToCurrentView);
+	$("#linkText").val(linkToCurrentView);
 	$('#linkModal').modal('show');
 }
 
