@@ -58,6 +58,15 @@ viewerVars.serverURL = "../../data";
 // The endpoint gets a multipart mime document with "comment", "link" and "snapshot" elements.
 viewerVars.postToElogURL = "../../../postToElog";
 
+viewerVars.siteSupportsPostToElog = false;
+
+$.get("../../../site_params.json")
+.done(function(site_params){
+    viewerVars.siteSupportsPostToElog = _.get(site_params, "siteSupportsPostToElog", false);
+})
+
+
+
 // Google finance like list of time windows..
 viewerVars.selectorOptions = {
 		buttons: [{step: 'second',  stepmode: 'backward', count: 30, label: '30s'   },
@@ -524,10 +533,12 @@ function generatePlotConfig() {
 		icon: viewerVars.icons['solid/link'],
 		click: showLinkToCurrentView
 	});
-    newModeBarButtons.push({ name: 'Post to elog',
-		icon: viewerVars.icons['solid/share'],
-		click: showElogModal
-	});
+    if(viewerVars.siteSupportsPostToElog) {
+        newModeBarButtons.push({ name: 'Post to elog',
+    		icon: viewerVars.icons['solid/share'],
+    		click: showElogModal
+    	});
+    }
     newModeBarButtons.push({ name: 'Y Axes ranges',
 		icon: viewerVars.icons['solid/text-height'],
 		click: showYAxesRangeModal
