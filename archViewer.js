@@ -963,6 +963,7 @@ function showYAxesRangeModal() {
 function applyYAxesRanges() {
     var newlayout = myDiv.layout;
     _.each(viewerVars.egu2axis, function(v, k) {
+        if(k == 'N/A') { k = $.escapeSelector(k); }
         var range = [parseFloat($("#yAxesModal").find("table tbody").find("input[name="+k+"_min]").val()), parseFloat($("#yAxesModal").find("table tbody").find("input[name="+k+"_max]").val())];
         _.set(viewerVars.egu_yaxis_specs, k + '.range', range);
         _.set(newlayout, viewerVars.y_short_2_long[v] + ".autorange", false);
