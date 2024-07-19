@@ -953,8 +953,8 @@ function showYAxesRangeModal() {
     Mustache.parse(axtmpl);
     var yranges = _.map(viewerVars.egu2axis, function(v, k) { return {
         "egu": k,
-        "min": _.get(viewerVars.egu_yaxis_specs, k + ".range", _.get(myDiv._fullLayout, viewerVars.y_short_2_long[v] + '.range[0]', -10)),
-        "max": _.get(viewerVars.egu_yaxis_specs, k + ".range", _.get(myDiv._fullLayout, viewerVars.y_short_2_long[v] + '.range[1]',  10))
+        "min": _.get(viewerVars.egu_yaxis_specs, k + ".range[0]", _.get(myDiv._fullLayout, viewerVars.y_short_2_long[v] + '.range[0]', -10)),
+        "max": _.get(viewerVars.egu_yaxis_specs, k + ".range[1]", _.get(myDiv._fullLayout, viewerVars.y_short_2_long[v] + '.range[1]',  10))
     }})
     $("#yAxesModal").find("table tbody").empty().append(Mustache.render(axtmpl, yranges));
     $('#yAxesModal').modal('show');
